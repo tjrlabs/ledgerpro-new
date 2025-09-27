@@ -1,0 +1,12 @@
+/* Import Font Awesome */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.invalid-feedback{
+    color: #dd0000;
+    font-size:13px;
+}
+div.is-invalid {
+    border: 1px solid #dd0000;
+}
