@@ -1,61 +1,144 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LedgerPro
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+LedgerPro is a Laravel 13 application that now uses Laravel Sail as the default local development environment.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.4
+- Laravel 13
+- Laravel Sail
+- MySQL 8.4
+- Redis
+- Mailpit
+- phpMyAdmin
+- Vite 8
+- Tailwind CSS 4
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## First-time setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Install dependencies:
 
-## Learning Laravel
+	```bash
+	composer install
+	```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. Copy the environment file if needed:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+	```bash
+	cp .env.example .env
+	```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. Start the Sail stack:
 
-## Laravel Sponsors
+	```bash
+	./vendor/bin/sail up -d
+	```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. Prepare the application:
 
-### Premium Partners
+	```bash
+	./vendor/bin/sail artisan key:generate
+	./vendor/bin/sail artisan migrate
+	./vendor/bin/sail npm install
+	```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The migration flow also bootstraps the default auth data automatically:
 
-## Contributing
+- Roles: `admin`, `user`
+- Admin user: `Jai Raghav`
+- Email: `thejairaghav@gmail.com`
+- Password: `pass@111`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Daily development
 
-## Code of Conduct
+Start the containers:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+./vendor/bin/sail up -d
+```
 
-## Security Vulnerabilities
+Stop the containers:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+./vendor/bin/sail down
+```
 
-## License
+Run the Vite dev server inside Sail:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev -- --host 0.0.0.0
+```
+
+Run `./vendor/bin/sail npm install` again only when frontend dependencies change or the container-side `node_modules` volume needs to be refreshed.
+
+Run the queue worker inside Sail:
+
+```bash
+./vendor/bin/sail artisan queue:listen --tries=1
+```
+
+Tail Laravel logs with Pail inside Sail:
+
+```bash
+./vendor/bin/sail artisan pail --timeout=0
+```
+
+## Common commands
+
+Run tests:
+
+```bash
+./vendor/bin/sail test
+```
+
+Run Artisan commands:
+
+```bash
+./vendor/bin/sail artisan about
+```
+
+Build frontend assets:
+
+```bash
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run build
+```
+
+Reset the local database and recreate the default roles and admin user:
+
+```bash
+./vendor/bin/sail artisan migrate:fresh
+```
+
+Open a shell in the app container:
+
+```bash
+./vendor/bin/sail shell
+```
+
+Start phpMyAdmin after changing compose services:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+## Node modules in Sail
+
+The Sail container now uses a dedicated Docker volume for `/var/www/html/node_modules` so Linux-native packages are installed inside the container instead of reusing macOS host binaries.
+
+If Vite fails after dependency changes, refresh the container-side install with:
+
+```bash
+./vendor/bin/sail npm install
+```
+
+## Local service ports
+
+- App: http://localhost:8080
+- Vite: http://localhost:5173
+- Mailpit UI: http://localhost:8025
+- phpMyAdmin: http://localhost:8081
+- MySQL: localhost:3306 by default via `.env.example`
+
+The committed `.env` in this workspace uses app port `8080` and forwards MySQL to port `8889` to avoid common local port conflicts while still using container-internal port `3306` for the application connection.

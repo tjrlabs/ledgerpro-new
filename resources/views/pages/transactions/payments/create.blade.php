@@ -102,7 +102,7 @@
                         <!-- Notes -->
                         <div>
                             <x-forms.label for="notes" value="Notes" />
-                            <textarea name="notes" id="notes" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Enter any additional notes about this payment...">{{ old('notes', isset($payment) ? $payment->notes : '') }}</textarea>
+                            <textarea name="notes" id="notes" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50" placeholder="Enter any additional notes about this payment...">{{ old('notes', isset($payment) ? $payment->notes : '') }}</textarea>
                             @error('notes')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror

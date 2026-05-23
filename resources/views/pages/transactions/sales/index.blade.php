@@ -18,7 +18,7 @@
                         <form action="{{ route('sales.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div>
                                 <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                                <select name="client_id" id="client_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="client_id" id="client_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="">All Clients</option>
                                     @foreach($clients as $client)
 
@@ -31,7 +31,7 @@
 
                             <div>
                                 <label for="sale_type" class="block text-sm font-medium text-gray-700 mb-1">Sale Type</label>
-                                <select name="sale_type" id="sale_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="sale_type" id="sale_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="">All</option>
                                     <option value="invoice" {{ request('sale_type') == 'invoice' ? 'selected' : '' }}>Invoice</option>
                                     <option value="cash" {{ request('sale_type') == 'cash' ? 'selected' : '' }}>Cash</option>
@@ -40,7 +40,7 @@
 
                             <div>
                                 <label for="date_range" class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                                <select name="date_range" id="date_range" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="date_range" id="date_range" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="current_month" {{ $dateRange == 'current_month' ? 'selected' : '' }}>Current Month</option>
                                     <option value="last_month" {{ $dateRange == 'last_month' ? 'selected' : '' }}>Last Month</option>
                                     <option value="current_quarter" {{ $dateRange == 'current_quarter' ? 'selected' : '' }}>Current Quarter</option>
@@ -53,7 +53,7 @@
 
                             <div>
                                 <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
-                                <select name="payment_status" id="payment_status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="payment_status" id="payment_status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="">All</option>
                                     <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
                                     <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
@@ -61,10 +61,10 @@
                             </div>
 
                             <div>
-                                <button type="submit" class="h-9 mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <button type="submit" class="h-9 mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('sales.index') }}" class="h-9 mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ml-2 inline-flex items-center">
+                                <a href="{{ route('sales.index') }}" class="h-9 mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ml-2 inline-flex items-center">
                                     Reset
                                 </a>
                             </div>
@@ -73,12 +73,12 @@
                             <div id="custom-date-range" class="md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-4 {{ $dateRange == 'custom' ? '' : 'hidden' }}">
                                 <div>
                                     <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                                    <input type="text" name="start_date" id="start_date" class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    <input type="text" name="start_date" id="start_date" class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"
                                         value="{{ $dateRange == 'custom' && $startDate ? $startDate->format('Y-m-d') : '' }}">
                                 </div>
                                 <div>
                                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                                    <input type="text" name="end_date" id="end_date" class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    <input type="text" name="end_date" id="end_date" class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"
                                         value="{{ $dateRange == 'custom' && $endDate ? $endDate->format('Y-m-d') : '' }}">
                                 </div>
                             </div>

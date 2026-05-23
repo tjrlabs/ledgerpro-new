@@ -1,8 +1,14 @@
+@config '../../tailwind.config.js';
+
 /* Import Font Awesome */
 @import '@fortawesome/fontawesome-free/css/all.min.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+    --default-ring-width: 3px;
+    --default-ring-color: var(--color-blue-500);
+}
+
 .invalid-feedback{
     color: #dd0000;
     font-size:13px;

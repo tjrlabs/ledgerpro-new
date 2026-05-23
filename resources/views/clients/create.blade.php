@@ -147,7 +147,7 @@
 
                         <div>
                             <div class="flex items-center">
-                                <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', isset($client) && $client->is_active ? 'checked' : '') }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active', isset($client) && $client->is_active ? 'checked' : '') }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200/50">
                                 <label for="is_active" class="ml-2 block text-sm text-gray-900">Active Client</label>
                             </div>
                             @error('is_active')
@@ -163,7 +163,7 @@
                                 @endphp
                                 <input type="checkbox" name="add_opening_balance" id="add_opening_balance" value="1"
                                        {{ $checkboxChecked ? 'checked' : '' }}
-                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200/50"
                                        onchange="toggleOpeningBalanceFields()">
                                 <label for="add_opening_balance" class="ml-2 block text-sm text-gray-900">Add opening account balance. (By default, it will be set to 0 starting current month).</label>
                             </div>

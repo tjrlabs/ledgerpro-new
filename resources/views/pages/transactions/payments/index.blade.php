@@ -37,7 +37,7 @@
                                 <!-- Client Filter -->
                                 <div>
                                     <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                                    <select id="client_id" name="client_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <select id="client_id" name="client_id" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">All Clients</option>
                                         @foreach($clients as $client)
                                             <option value="{{ $client->id }}" {{ $filters['client_id'] == $client->id ? 'selected' : '' }}>
@@ -50,7 +50,7 @@
                                 <!-- Payment Method Filter -->
                                 <div>
                                     <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-                                    <select id="payment_method" name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <select id="payment_method" name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="">All Methods</option>
                                         @foreach($paymentMethods as $key => $method)
                                             <option value="{{ $key }}" {{ $filters['payment_method'] == $key ? 'selected' : '' }}>
@@ -63,7 +63,7 @@
                                 <!-- Duration Filter -->
                                 <div>
                                     <label for="date_range" class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                                    <select id="date_range" name="date_range" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <select id="date_range" name="date_range" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                         <option value="current_month" {{ ($filters['date_range'] ?? 'current_month') == 'current_month' ? 'selected' : '' }}>Current Month</option>
                                         <option value="last_month" {{ ($filters['date_range'] ?? '') == 'last_month' ? 'selected' : '' }}>Last Month</option>
                                         <option value="current_quarter" {{ ($filters['date_range'] ?? '') == 'current_quarter' ? 'selected' : '' }}>Current Quarter</option>
@@ -83,7 +83,7 @@
                                            id="date_from"
                                            name="date_from"
                                            value="{{ $filters['date_from'] ?? '' }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 </div>
                                 <div>
                                     <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
@@ -91,7 +91,7 @@
                                            id="date_to"
                                            name="date_to"
                                            value="{{ $filters['date_to'] ?? '' }}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 </div>
                             </div>
 

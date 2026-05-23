@@ -80,13 +80,13 @@
                                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                                 <input type="text" name="search" id="search" placeholder="Name or Mobile"
                                        value="{{ $currentFilters['search'] ?? '' }}"
-                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                             </div>
 
                             <!-- Status Filter -->
                             <div>
                                 <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select name="status" id="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="status" id="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     @foreach($statuses as $status)
                                         <option value="{{ $status }}" {{ ($currentFilters['status'] ?? 'active') == $status ? 'selected' : '' }}>
                                             {{ ucfirst($status) }}
@@ -98,7 +98,7 @@
                             <!-- Department Filter -->
                             <div>
                                 <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                                <select name="department" id="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="department" id="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="">All Departments</option>
                                     @foreach($departments as $department)
                                         <option value="{{ $department }}" {{ ($currentFilters['department'] ?? '') == $department ? 'selected' : '' }}>
@@ -111,7 +111,7 @@
                             <!-- Gender Filter -->
                             <div>
                                 <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                                <select name="gender" id="gender" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                <select name="gender" id="gender" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                     <option value="">All Genders</option>
                                     @foreach($genders as $gender)
                                         <option value="{{ $gender }}" {{ ($currentFilters['gender'] ?? '') == $gender ? 'selected' : '' }}>
@@ -126,15 +126,15 @@
                                 <label for="joining_from" class="block text-sm font-medium text-gray-700 mb-1">Joined From</label>
                                 <input type="text" name="joining_from" id="joining_from" placeholder="YYYY-MM-DD"
                                        value="{{ $currentFilters['joining_from'] ?? '' }}"
-                                       class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                       class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                             </div>
 
                             <!-- Filter Buttons -->
                             <div class="flex items-end space-x-2">
-                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('employees.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <a href="{{ route('employees.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                     Reset
                                 </a>
                             </div>
@@ -267,7 +267,7 @@
         </div>
     </div>
     <!-- Modal -->
-    <div id="pay-advance-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+    <div id="pay-advance-modal" class="hidden fixed inset-0 bg-gray-500/75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-6">
@@ -342,7 +342,7 @@
                            min="1"
                            max="50000"
                            placeholder="Enter amount"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"
                            required>
                     <p class="mt-1 text-xs text-gray-500">Enter the advance amount to be paid to the employee</p>
                 </div>
@@ -355,18 +355,18 @@
                               name="reason"
                               rows="3"
                               placeholder="Reason for advance payment..."
-                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"></textarea>
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"></textarea>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-end space-x-3">
                     <button type="button"
                             id="cancel-advance"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                            class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-md hover:bg-yellow-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
                         Pay Advance
                     </button>
                 </div>

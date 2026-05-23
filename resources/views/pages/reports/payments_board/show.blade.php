@@ -111,14 +111,14 @@
                                                     <div class="flex items-center space-x-2 justify-center">
                                                         <textarea
                                                             id="remarks_{{ $clientPayment->id }}"
-                                                            class="flex-1 min-w-[180px] max-w-[220px] px-3 py-2 text-xs border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors duration-200"
+                                                            class="flex-1 min-w-[180px] max-w-[220px] px-3 py-2 text-xs border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden transition-colors duration-200"
                                                             rows="1"
                                                             placeholder="Add remarks..."
                                                         >{{ $clientPayment->remarks ?? '' }}</textarea>
                                                         <button
                                                             type="button"
                                                             onclick="saveRemarks({{ $clientPayment->id }})"
-                                                            class="flex-shrink-0 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                            class="shrink-0 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-all duration-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500">
                                                             Save
                                                         </button>
                                                     </div>
@@ -127,7 +127,7 @@
                                                     <button
                                                         type="button"
                                                         onclick="recalculateClientPayment({{ $clientPayment->id }})"
-                                                        class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                        class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-all duration-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500">
                                                         Recalculate
                                                     </button>
                                                 </td>
@@ -168,7 +168,7 @@
                             <button
                                 type="button"
                                 onclick="finalizePaymentsBoard()"
-                                class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg shadow-lg flex items-center font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg shadow-lg flex items-center font-semibold transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-orange-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>

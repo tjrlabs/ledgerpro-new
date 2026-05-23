@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -40,6 +42,20 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        $now = now();
+        $adminRoleId = DB::table('roles')->where('slug', 'admin')->value('id');
+
+        DB::table('users')->updateOrInsert(
+            ['email' => 'thejairaghav@gmail.com'],
+            [
+                'name' => 'Jai Raghav',
+                'password' => Hash::make('pass@111'),
+                'role_id' => $adminRoleId,
+                'updated_at' => $now,
+                'created_at' => $now,
+            ]
+        );
     }
 
     /**

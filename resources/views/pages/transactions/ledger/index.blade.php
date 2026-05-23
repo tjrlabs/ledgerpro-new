@@ -75,7 +75,7 @@
                                 <!-- Date Range -->
                                 <div>
                                     <label for="date_range" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                                    <select name="date_range" id="date_range" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <select name="date_range" id="date_range" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                         @foreach($dateRangeOptions as $value => $label)
                                             <option value="{{ $value }}" {{ $dateRange == $value ? 'selected' : '' }}>{{ $label }}</option>
                                         @endforeach
@@ -85,7 +85,7 @@
                                 <!-- Client Filter -->
                                 <div>
                                     <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
-                                    <select name="client_id" id="client_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <select name="client_id" id="client_id" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                         <option value="">All Clients</option>
                                         @foreach($clients as $client)
                                             <option value="{{ $client->id }}" {{ $clientId == $client->id ? 'selected' : '' }}>{{ $client->client_name }}</option>
@@ -96,7 +96,7 @@
                                 <!-- Transaction Type Filter -->
                                 <div>
                                     <label for="transaction_type" class="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
-                                    <select name="transaction_type" id="transaction_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <select name="transaction_type" id="transaction_type" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                         <option value="">All Types</option>
                                         @foreach($transactionTypes as $value => $label)
                                             <option value="{{ $value }}" {{ $transactionType == $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -116,11 +116,11 @@
                             <div id="custom-date-range" class="grid grid-cols-1 md:grid-cols-2 gap-4 {{ $dateRange == 'custom' ? '' : 'hidden' }}">
                                 <div>
                                     <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                                    <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                 </div>
                                 <div>
                                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                                    <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
                                 </div>
                             </div>
                         </form>

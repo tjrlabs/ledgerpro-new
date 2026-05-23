@@ -157,7 +157,7 @@
     </div>
 
     <!-- Add Clients Modal -->
-    <div id="addClientsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div id="addClientsModal" class="fixed inset-0 bg-gray-600/50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-10 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <div class="flex items-center justify-between mb-4">
@@ -180,10 +180,10 @@
                                 <span id="selectedCount">0</span> client(s) selected
                             </div>
                             <div class="flex space-x-3">
-                                <button type="button" id="cancelAddClients" class="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                <button type="button" id="cancelAddClients" class="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-hidden focus:ring-2 focus:ring-gray-300">
                                     Cancel
                                 </button>
-                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
                                     Add Selected Clients
                                 </button>
                             </div>
