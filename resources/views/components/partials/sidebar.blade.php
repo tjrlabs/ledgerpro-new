@@ -88,7 +88,7 @@
             <div>
                 <div class="mb-2 flex items-center justify-between px-3">
                     <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-200/45">Reporting</p>
-                    <span class="badge badge-warning">1</span>
+                    <span class="badge badge-warning">2</span>
                 </div>
                 <button onclick="toggleReportsSubmenu()" class="{{ $navClass($reportsActive) }} w-full justify-between">
                     <span class="flex items-center">
@@ -99,6 +99,7 @@
                 </button>
                 <ul id="reports-submenu" class="ml-4 mt-2 space-y-1 border-l border-violet-500/20 pl-3 {{ $reportsActive ? '' : 'hidden' }}">
                     <li><a href="{{ route('reports.payments.board') }}" class="{{ $subNavClass(request()->routeIs('reports.payments.board*')) }}"><i class="fa-solid fa-table-list mr-2 w-4 text-center"></i>Payments Board</a></li>
+                    <li><a href="{{ route('reports.profit-loss') }}" class="{{ $subNavClass(request()->routeIs('reports.profit-loss*')) }}"><i class="fa-solid fa-chart-column mr-2 w-4 text-center"></i>P/L</a></li>
                 </ul>
             </div>
         </nav>

@@ -48,9 +48,11 @@ The committed PHPUnit config uses sqlite in-memory for tests.
 - Request payload normalization and validation usually live in DTOs under `app/DTO`; DTO `from()` methods return either the DTO or `App\Classes\ErrorData`.
 - Repository methods generally return `App\Classes\ResponseData`, `SuccessData`, or `ErrorData`.
 - Sales, payments, expenses, and ledger behavior are centered on the unified `transactions` table and `App\Repositories\TransactionRepository`.
+- Reports include payments boards and month-year P/L reports under `app/Http/Controllers/Reports`, `app/Repositories`, and `resources/views/pages/reports`.
 - Do not reintroduce old separate Sales/Payment/Expense repository paths unless the task explicitly calls for restoring legacy behavior.
 - Shared UI shells and form components live under `resources/views/components`; page views live under `resources/views/pages`.
 - Global frontend styles and reusable Tailwind component classes live in `resources/css/app.css`.
+- `App\Models\Reports\PaymentsBoard` uses `finalized_at` as the durable signal that a board has been finalized; P/L creation should check that instead of inferring from timestamps.
 
 ## Tenant Isolation Rules
 

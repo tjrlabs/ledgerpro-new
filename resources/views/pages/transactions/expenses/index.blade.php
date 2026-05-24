@@ -169,6 +169,12 @@
 
                     <!-- Expenses Table -->
                     @if($expenses->isNotEmpty())
+                        @php
+                            $totalBaseAmount = $expenses->sum('base_amount');
+                            $totalTaxAmount = $expenses->sum('tax_amount');
+                            $totalExpenseAmount = $expenses->sum('total_amount');
+                        @endphp
+
                         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                             <div class="px-6 py-4 border-b border-gray-200">
                                 <h3 class="text-lg font-semibold text-gray-900">Expense Records</h3>
@@ -255,6 +261,15 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    <tfoot>
+                                        <tr class="bg-violet-950/60 font-semibold text-violet-50">
+                                            <td colspan="2" class="px-6 py-4 text-right text-sm uppercase tracking-[0.12em] text-violet-100/85">Total</td>
+                                            <td class="px-6 py-4 text-right text-sm">₹{{ number_format($totalBaseAmount, 2) }}</td>
+                                            <td class="px-6 py-4 text-right text-sm">₹{{ number_format($totalTaxAmount, 2) }}</td>
+                                            <td class="px-6 py-4 text-right text-sm">₹{{ number_format($totalExpenseAmount, 2) }}</td>
+                                            <td colspan="3" class="px-6 py-4"></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>

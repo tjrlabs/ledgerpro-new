@@ -9,7 +9,8 @@ use App\Http\Controllers\{Clients\ClientsController,
     Transactions\LedgerController,
     Employee\EmployeeController,
     Employee\AttendanceController as AttendanceController,
-    Reports\PaymentsBoardController
+    Reports\PaymentsBoardController,
+    Reports\ProfitLossController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -104,6 +105,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/reports/payments-board/{id}/recalculate', [PaymentsBoardController::class, 'recalculateBoard'])->name('reports.payments.board.recalculate');
     Route::post('/reports/payments-board/client-payment/{id}/recalculate', [PaymentsBoardController::class, 'recalculateClientPayment'])->name('reports.payments.board.recalculate-client');
     Route::post('/reports/payments-board/{id}/finalize', [PaymentsBoardController::class, 'finalize'])->name('reports.payments.board.finalize');
+
+    Route::get('/reports/profit-loss', [ProfitLossController::class, 'index'])->name('reports.profit-loss');
+    Route::get('/reports/profit-loss/create', [ProfitLossController::class, 'create'])->name('reports.profit-loss.create');
+    Route::post('/reports/profit-loss/store', [ProfitLossController::class, 'store'])->name('reports.profit-loss.store');
+    Route::get('/reports/profit-loss/{id}', [ProfitLossController::class, 'show'])->name('reports.profit-loss.show');
+    Route::delete('/reports/profit-loss/{id}/delete', [ProfitLossController::class, 'destroy'])->name('reports.profit-loss.delete');
 });
 
 require __DIR__.'/auth.php';

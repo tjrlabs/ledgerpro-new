@@ -10,6 +10,7 @@ use App\Models\EmployeeAttendanceboard;
 use App\Models\Inventory\Items;
 use App\Models\Reports\ClientsPayments;
 use App\Models\Reports\PaymentsBoard;
+use App\Models\Reports\ProfitLossReport;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\AttendanceRepository;
@@ -620,6 +621,119 @@ class TenantWorkflowRegressionTest extends TestCase
             'month' => 2,
             'year' => 2025,
             'opening_balance' => 45,
+        ]);
+
+        $this->assertDatabaseHas('payments_board', [
+            'id' => $board->id,
+            'company_profile_id' => $company->id,
+        ]);
+
+        $this->assertNotNull($board->fresh()->finalized_at);
+    }
+
+    public function test_profit_loss_requires_finalized_payments_board_and_uses_board_sales_and_month_expenses(): void
+    {
+        [$user, $company] = $this->createCompanyContext('primary');
+        $client = $this->createClient($company, 'Profit Client');
+
+        $board = PaymentsBoard::create([
+            'company_profile_id' => $company->id,
+            'board_month_year' => '01-2025',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-01-31',
+            'total_days' => 31,
+            'clients_count' => 0,
+            'total_pre_gst_amount' => 0,
+            'total_gst_amount' => 0,
+            'total_cash_sales' => 0,
+            'total_tds' => 0,
+            'total_previous_balance' => 0,
+            'total_amount' => 0,
+            'total_net_amount' => 0,
+            'total_paid_amount' => 0,
+            'total_unpaid_amount' => 0,
+        ]);
+
+        $this->createTransaction($company, $client, 'sale', [
+            'transaction_date' => '2025-01-10',
+            'sales_type' => 'invoice',
+            'base_amount' => 100,
+            'tax_amount' => 18,
+            'tax_rate' => 18,
+            'total_amount' => 118,
+            'paid' => 0,
+        ]);
+
+        $this->createTransaction($company, $client, 'sale', [
+            'transaction_date' => '2025-01-12',
+            'sales_type' => 'cash',
+            'base_amount' => 20,
+            'tax_amount' => 0,
+            'tax_rate' => 0,
+            'total_amount' => 20,
+            'paid' => 1,
+        ]);
+
+        $this->createTransaction($company, null, 'expense', [
+            'transaction_date' => '2025-01-22',
+            'sales_type' => 'cash',
+            'base_amount' => 30,
+            'tax_amount' => 0,
+            'tax_rate' => 0,
+            'total_amount' => 30,
+            'paid' => 1,
+        ]);
+
+        $this->actingAs($user)
+            ->withSession($this->companySession($company))
+            ->post(route('reports.payments.board.add-clients', $board->id), [
+                'client_ids' => [$client->id],
+            ])
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertEquals(20.0, (float) $board->fresh()->total_cash_sales);
+        $this->assertEquals(100.0, (float) $board->fresh()->total_pre_gst_amount);
+        $this->assertEquals(18.0, (float) $board->fresh()->total_gst_amount);
+
+        $this->actingAs($user)
+            ->withSession($this->companySession($company))
+            ->from(route('reports.profit-loss.create'))
+            ->post(route('reports.profit-loss.store'), [
+                'profit_loss_month' => '01',
+                'profit_loss_year' => '2025',
+            ])
+            ->assertRedirect(route('reports.profit-loss.create'))
+            ->assertSessionHasErrors()
+            ->assertSessionHas('errors', fn ($errors) => in_array('Finalize the payments board for this period before creating P/L.', $errors->all(), true));
+
+        $this->actingAs($user)
+            ->withSession($this->companySession($company))
+            ->post(route('reports.payments.board.finalize', $board->id))
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $response = $this->actingAs($user)
+            ->withSession($this->companySession($company))
+            ->post(route('reports.profit-loss.store'), [
+                'profit_loss_month' => '01',
+                'profit_loss_year' => '2025',
+            ]);
+
+        $report = ProfitLossReport::where('company_profile_id', $company->id)
+            ->where('board_month_year', '01-2025')
+            ->firstOrFail();
+
+        $response->assertRedirect(route('reports.profit-loss.show', $report->id));
+
+        $this->assertDatabaseHas('profit_loss_reports', [
+            'id' => $report->id,
+            'company_profile_id' => $company->id,
+            'payments_board_id' => $board->id,
+            'total_income' => 138,
+            'total_expenses' => 30,
+            'total_gst' => 18,
+            'profit_loss' => 90,
         ]);
     }
 

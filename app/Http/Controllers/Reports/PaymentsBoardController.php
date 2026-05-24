@@ -740,8 +740,8 @@ class PaymentsBoardController extends Controller
                 }
             }
 
-            // Mark the payments board as finalized (if there's a status field)
             $this->paymentsBoardRepository->updatePaymentsBoard($id, [
+                'finalized_at' => $paymentsBoard->finalized_at ?? now(),
                 'updated_at' => now()
             ]);
 

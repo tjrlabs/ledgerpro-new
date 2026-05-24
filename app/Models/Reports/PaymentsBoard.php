@@ -30,6 +30,7 @@ class PaymentsBoard extends Model
         'total_net_amount',
         'total_paid_amount',
         'total_unpaid_amount',
+        'finalized_at',
     ];
 
     protected $casts = [
@@ -47,6 +48,7 @@ class PaymentsBoard extends Model
         'total_net_amount' => 'decimal:2',
         'total_paid_amount' => 'decimal:2',
         'total_unpaid_amount' => 'decimal:2',
+        'finalized_at' => 'datetime',
     ];
 
     /**
@@ -98,6 +100,11 @@ class PaymentsBoard extends Model
     public function getOutstandingAmountAttribute()
     {
         return $this->total_amount - $this->total_paid_amount;
+    }
+
+    public function getIsFinalizedAttribute(): bool
+    {
+        return $this->finalized_at !== null;
     }
 
     /**
