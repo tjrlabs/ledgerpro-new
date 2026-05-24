@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Clients;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ErrorData;
 use App\DTO\Clients\ManageClientDTO;
 use App\Http\Controllers\Controller;
 use App\Repositories\ClientsPaymentsRepository;
-use App\Repositories\PaymentRepository;
-use App\Repositories\SalesRepository;
 use App\Repositories\AccountBalanceRepository;
 use Illuminate\Http\Request;
 use App\Models\Client;
 use App\Repositories\ClientsRepository;
+use App\Repositories\TransactionRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -23,8 +23,7 @@ class ClientsController extends Controller
     public function __construct(
         public ClientsRepository $clientsRepository,
         public ClientsPaymentsRepository $paymentsRepository,
-        public PaymentRepository $paymentRepository,
-        public SalesRepository $salesRepository,
+        public TransactionRepository $transactionRepository,
         public AccountBalanceRepository $accountBalanceRepository
     )
     {
@@ -38,9 +37,7 @@ class ClientsController extends Controller
      */
     public function index(Request $request)
     {
-        $clients = Client::where('company_profile_id', session('company_profile.id'))
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $clients = $this->clientsRepository->getAllClients();
 
         return view('clients.index', [
             'clients' => $clients,
@@ -86,11 +83,15 @@ class ClientsController extends Controller
      */
     public function edit(int $id): View
     {
-        $client = Client::findOrFail($id);
+        $client = $this->clientsRepository->findClient($id);
+
+        if (!$client) {
+            abort(404);
+        }
 
         // Fetch existing account balance for this client
         $accountBalance = null;
-        $companyProfileId = session('company_profile.id');
+        $companyProfileId = CurrentCompany::id();
 
         // Get the most recent account balance record for this client
         $accountBalance = \App\Models\AccountBalance::where('client_id', $client->id)
@@ -146,10 +147,7 @@ class ClientsController extends Controller
             }
 
             // Check if client has any related records using repositories
-            $clientPayments = $this->paymentRepository->getPaymentsByClient($id);
-            $clientSales = $this->salesRepository->getAllSales(['client_id' => $id]);
-
-            if ($clientPayments->isNotEmpty() || $clientSales->isNotEmpty()) {
+            if ($this->transactionRepository->clientHasSalesOrPayments($id)) {
                 return redirect()->route('clients.index')
                     ->with('error', 'Cannot delete client as it has associated payments or sales records.');
             }
@@ -188,7 +186,7 @@ class ClientsController extends Controller
             ]);
 
             $boardId = $request->input('board_id');
-            $companyProfileId = session('company_profile.id');
+            $companyProfileId = CurrentCompany::id();
 
             // Use repository to get available clients for the board
             $activeClients = $this->paymentsRepository->getAvailableClientsForBoard($boardId, $companyProfileId);
@@ -198,8 +196,8 @@ class ClientsController extends Controller
                     return [
                         'id' => $client->id,
                         'client_name' => $client->client_name,
-                        'email' => $client->email,
-                        'phone' => $client->phone,
+                        'email' => $client->client_email,
+                        'phone' => $client->client_phone,
                         'company_name' => $client->company_name ?? null,
                     ];
                 })

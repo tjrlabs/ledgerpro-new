@@ -2,8 +2,10 @@
 
 namespace App\Models\Reports;
 
+use App\Models\CompanyProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 class PaymentsBoard extends Model
@@ -13,6 +15,7 @@ class PaymentsBoard extends Model
     protected $table = 'payments_board';
 
     protected $fillable = [
+        'company_profile_id',
         'board_month_year',
         'start_date',
         'end_date',
@@ -30,6 +33,7 @@ class PaymentsBoard extends Model
     ];
 
     protected $casts = [
+        'company_profile_id' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
         'total_days' => 'integer',
@@ -44,6 +48,14 @@ class PaymentsBoard extends Model
         'total_paid_amount' => 'decimal:2',
         'total_unpaid_amount' => 'decimal:2',
     ];
+
+    /**
+     * Get the company profile that owns this payments board.
+     */
+    public function companyProfile(): BelongsTo
+    {
+        return $this->belongsTo(CompanyProfile::class);
+    }
 
     /**
      * Get the month and year from board_month_year
@@ -94,6 +106,14 @@ class PaymentsBoard extends Model
     public function scopeByMonthYear($query, $monthYear)
     {
         return $query->where('board_month_year', $monthYear);
+    }
+
+    /**
+     * Scope to filter by company.
+     */
+    public function scopeForCompany($query, int $companyProfileId)
+    {
+        return $query->where('company_profile_id', $companyProfileId);
     }
 
     /**

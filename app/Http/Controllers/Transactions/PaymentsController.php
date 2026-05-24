@@ -54,11 +54,6 @@ class PaymentsController extends Controller
         // Get filtered payments from repository
         $payments = $this->transactionRepository->getFilteredPayments($filters);
 
-        // Paginate results (convert collection to paginator)
-        $perPage = 15;
-        $currentPage = $request->get('page', 1);
-        $pagedPayments = $payments->forPage($currentPage, $perPage);
-
         // Get clients for filter dropdown
         $clients = $this->clientsRepository->getAllClients();
 
@@ -70,7 +65,7 @@ class PaymentsController extends Controller
         ];
 
         return view('pages.transactions.payments.index', compact(
-            'pagedPayments',
+            'payments',
             'clients',
             'paymentMethods',
             'filters'

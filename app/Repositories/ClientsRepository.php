@@ -2,11 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
 use App\DTO\Clients\ManageClientDTO;
 use App\Models\Client;
+use App\Models\Payment;
+use App\Models\Sales\Sale;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,7 +30,9 @@ class ClientsRepository
      */
     public function getAllClients(): Collection
     {
-        return Client::orderBy('client_name')->get();
+        return Client::where('company_profile_id', CurrentCompany::id())
+            ->orderBy('client_name')
+            ->get();
     }
 
     /**
@@ -41,7 +46,7 @@ class ClientsRepository
         try {
             // Create a new client using the DTO data
             $client = new Client();
-            $client->company_profile_id = session('company_profile.id');
+            $client->company_profile_id = CurrentCompany::id();
             $client->client_name = $clientDTO->clientName;
             $client->display_name = $clientDTO->displayName;
             $client->client_email = $clientDTO->clientEmail;
@@ -80,7 +85,9 @@ class ClientsRepository
     {
         try {
             // Find the client to update
-            $client = Client::findOrFail($id);
+            $client = Client::where('id', $id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->firstOrFail();
 
             // Update the client using the DTO data
             $client->client_name = $clientDTO->clientName;
@@ -118,7 +125,7 @@ class ClientsRepository
     private function handleAccountBalance(Client $client, ManageClientDTO $clientDTO): void
     {
         try {
-            $companyProfileId = session('company_profile.id');
+            $companyProfileId = CurrentCompany::id();
 
             if ($clientDTO->addOpeningBalance &&
                 $clientDTO->accountBalance !== null &&
@@ -162,7 +169,7 @@ class ClientsRepository
     public function findClient(int $id): ?Client
     {
         return Client::where('id', $id)
-            ->where('company_profile_id', session('company_profile.id'))
+            ->where('company_profile_id', CurrentCompany::id())
             ->first();
     }
 
@@ -176,7 +183,7 @@ class ClientsRepository
     {
         try {
             $client = Client::where('id', $id)
-                ->where('company_profile_id', session('company_profile.id'))
+                ->where('company_profile_id', CurrentCompany::id())
                 ->first();
 
             if (!$client) {
@@ -202,8 +209,12 @@ class ClientsRepository
     {
         // This method still needs to use repositories, but for now we'll keep it simple
         // since we're focusing on the controller changes
-        $hasPayments = \App\Models\Payment::where('client_id', $clientId)->exists();
-        $hasSales = \App\Models\Sale::where('client_id', $clientId)->exists();
+        $hasPayments = Payment::where('company_profile_id', CurrentCompany::id())
+            ->where('client_id', $clientId)
+            ->exists();
+        $hasSales = Sale::where('company_profile_id', CurrentCompany::id())
+            ->where('client_id', $clientId)
+            ->exists();
 
         return [
             'hasPayments' => $hasPayments,

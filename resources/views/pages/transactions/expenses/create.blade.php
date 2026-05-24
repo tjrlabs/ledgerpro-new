@@ -1,10 +1,10 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
+            <div class="page-shell">
                 <div class="p-6">
                     <div class="mb-6">
-                        <a href="{{ route('expenses.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg inline-flex items-center mb-4">
+                        <a href="{{ route('expenses.index') }}" class="btn-secondary mb-4 inline-flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                             </svg>
@@ -14,7 +14,7 @@
                     </div>
 
                     @if ($errors->any())
-                        <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                        <div class="alert-error mb-4">
                             <h4 class="text-lg font-medium mb-2">Please correct the following errors:</h4>
                             <ul class="list-disc pl-5">
                                 @foreach ($errors->all() as $error)
@@ -25,10 +25,10 @@
                     @endif
 
                     @if(isset($isEditing) && $isEditing)
-                        <form action="{{ route('expenses.update', $expense->id) }}" method="POST" class="space-y-6 p-5 bg-white/70 backdrop-blur-sm rounded-lg shadow-inner border border-white" id="expenseForm">
+                        <form action="{{ route('expenses.update', $expense->id) }}" method="POST" class="surface-muted space-y-6" id="expenseForm">
                         @method('PUT')
                     @else
-                        <form action="{{ route('expenses.store') }}" method="POST" class="space-y-6 p-5 bg-white/70 backdrop-blur-sm rounded-lg shadow-inner border border-white" id="expenseForm">
+                        <form action="{{ route('expenses.store') }}" method="POST" class="surface-muted space-y-6" id="expenseForm">
                     @endif
                         @csrf
 
@@ -159,7 +159,7 @@
                         </div>
 
                         <div class="flex justify-end pt-4">
-                            <x-forms.button type="submit" class="bg-blue-600 hover:bg-blue-700">
+                            <x-forms.button type="submit" >
                                 {{ isset($isEditing) && $isEditing ? 'Update Expense' : 'Create Expense' }}
                             </x-forms.button>
                         </div>

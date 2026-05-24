@@ -1,7 +1,7 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
+            <div class="page-shell">
                 <div class="p-6">
                     <!-- Header -->
                     <div class="mb-6">

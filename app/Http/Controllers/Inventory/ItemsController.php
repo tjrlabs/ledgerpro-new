@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Inventory;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ErrorData;
 use App\Classes\SuccessData;
 use App\Http\Controllers\Controller;
@@ -28,7 +29,7 @@ class ItemsController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $allItems = Items::where('company_profile_id', session('company_profile.id'))
+        $allItems = Items::where('company_profile_id', CurrentCompany::id())
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -118,7 +119,9 @@ class ItemsController extends Controller
     public function edit(Request $request, int $id): View|JsonResponse|RedirectResponse
     {
         try {
-            $item = Items::findOrFail($id);
+            $item = Items::where('id', $id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->firstOrFail();
 
             if ($request->expectsJson()) {
                 return response()->json([
@@ -199,7 +202,9 @@ class ItemsController extends Controller
     public function destroy(Request $request, int $id): RedirectResponse|JsonResponse
     {
         try {
-            $item = Items::findOrFail($id);
+            $item = Items::where('id', $id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->firstOrFail();
             $item->delete();
 
             if ($request->expectsJson()) {

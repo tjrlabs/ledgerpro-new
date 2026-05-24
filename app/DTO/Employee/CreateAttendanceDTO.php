@@ -79,7 +79,7 @@ class CreateAttendanceDTO implements BaseDTOInterface
             'attendance_month' => 'required|integer|min:1|max:12',
             'attendance_year' => 'required|integer|min:2025',
             'total_days' => 'required|integer|min:28|max:31',
-            'attendance_month_year' => 'required|string|unique:attendance,attendance_month_year',
+            'attendance_month_year' => 'required|string',
         ];
     }
 

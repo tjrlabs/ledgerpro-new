@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -28,7 +29,7 @@ class ItemsRepository
         try {
             // Create a new item using the DTO data
             $item = new Items();
-            $item->company_profile_id = session('company_profile.id');
+            $item->company_profile_id = CurrentCompany::id();
             if($itemDTO->clientId > 0) {
                 $item->client_id = $itemDTO->clientId;
             }
@@ -61,7 +62,9 @@ class ItemsRepository
     {
         try {
             // Find the item to update
-            $item = Items::findOrFail($id);
+            $item = Items::where('id', $id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->firstOrFail();
 
             // Update the item using the DTO data
             $item->item_name = $itemDTO->itemName;

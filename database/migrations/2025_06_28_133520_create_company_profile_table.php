@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -24,6 +25,26 @@ return new class extends Migration
             $table->tinyInteger('is_default')->default(0);
             $table->timestamps();
         });
+
+        $now = now();
+        $adminUserId = DB::table('users')
+            ->where('email', 'thejairaghav@gmail.com')
+            ->value('id');
+
+        if ($adminUserId) {
+            DB::table('company_profile')->updateOrInsert(
+                [
+                    'user_id' => $adminUserId,
+                    'company_name' => 'Ampspark Technologies Private Limited',
+                ],
+                [
+                    'company_email' => 'thejairaghav@gmail.com',
+                    'is_default' => 1,
+                    'updated_at' => $now,
+                    'created_at' => $now,
+                ]
+            );
+        }
     }
 
     /**

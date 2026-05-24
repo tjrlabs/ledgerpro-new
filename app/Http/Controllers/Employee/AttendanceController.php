@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Employee;
 
+use App\Classes\CurrentCompany;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\DTO\Employee\CreateAttendanceDTO;
@@ -195,6 +196,13 @@ class AttendanceController extends Controller
     public function getEmployeesForAttendance(Attendance $attendance)
     {
         try {
+            if ($attendance->company_profile_id !== CurrentCompany::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance record not found.'
+                ], 404);
+            }
+
             // Get all active employees
             $activeEmployees = $this->employeeRepository->getAllEmployees(['status' => 'active']);
 
@@ -236,6 +244,13 @@ class AttendanceController extends Controller
     public function addEmployeesToAttendance(Request $request, Attendance $attendance)
     {
         try {
+            if ($attendance->company_profile_id !== CurrentCompany::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance record not found.'
+                ], 404);
+            }
+
             // Validate the request
             $request->validate([
                 'employees' => 'required|array|min:1',
@@ -274,6 +289,7 @@ class AttendanceController extends Controller
 
                     // Create employee attendance record
                     $employeeAttendanceData = [
+                        'company_profile_id' => CurrentCompany::id(),
                         'employee_id' => $employee->id,
                         'attendance_id' => $attendance->id,
                         'per_day_salary' => $perDaySalary,
@@ -349,8 +365,16 @@ class AttendanceController extends Controller
     public function removeEmployeeFromAttendance(Attendance $attendance, int $employeeAttendanceId)
     {
         try {
+            if ($attendance->company_profile_id !== CurrentCompany::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance record not found.'
+                ], 404);
+            }
+
             // Find the employee attendance record
             $employeeAttendance = EmployeeAttendanceboard::where('id', $employeeAttendanceId)
+                ->where('company_profile_id', CurrentCompany::id())
                 ->where('attendance_id', $attendance->id)
                 ->first();
 
@@ -368,7 +392,9 @@ class AttendanceController extends Controller
             $employeeAttendance->delete();
 
             // Update attendance employee count
-            $currentCount = EmployeeAttendanceboard::where('attendance_id', $attendance->id)->count();
+            $currentCount = EmployeeAttendanceboard::where('attendance_id', $attendance->id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->count();
             $attendance->update(['employee_count' => $currentCount]);
 
             return response()->json([
@@ -428,7 +454,9 @@ class AttendanceController extends Controller
             ]);
 
             // Get the employee attendance record
-            $employeeAttendance = EmployeeAttendanceboard::with('employee')->find($recordId);
+            $employeeAttendance = EmployeeAttendanceboard::with('employee')
+                ->where('company_profile_id', CurrentCompany::id())
+                ->find($recordId);
 
             if (!$employeeAttendance) {
                 return response()->json([

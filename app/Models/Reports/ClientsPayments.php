@@ -2,10 +2,11 @@
 
 namespace App\Models\Reports;
 
+use App\Models\CompanyProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Reports\PaymentsBoard;
 use App\Models\Client;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClientsPayments extends Model
 {
@@ -14,6 +15,7 @@ class ClientsPayments extends Model
     protected $table = 'clients_payments';
 
     protected $fillable = [
+        'company_profile_id',
         'payments_board_id',
         'client_id',
         'cash_sales',
@@ -28,6 +30,7 @@ class ClientsPayments extends Model
     ];
 
     protected $casts = [
+        'company_profile_id' => 'integer',
         'cash_sales' => 'decimal:2',
         'pre_gst_amount' => 'decimal:2',
         'gst_amount' => 'decimal:2',
@@ -37,6 +40,14 @@ class ClientsPayments extends Model
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
     ];
+
+    /**
+     * Get the company profile that owns this client payment row.
+     */
+    public function companyProfile(): BelongsTo
+    {
+        return $this->belongsTo(CompanyProfile::class);
+    }
 
     /**
      * Get the payments board that this client payment belongs to.
@@ -52,6 +63,14 @@ class ClientsPayments extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * Scope to filter by company.
+     */
+    public function scopeForCompany($query, int $companyProfileId)
+    {
+        return $query->where('company_profile_id', $companyProfileId);
     }
 
     /**

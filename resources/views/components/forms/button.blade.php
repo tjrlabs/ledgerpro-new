@@ -1,1 +1,1 @@
-<button {{$attributes->merge(['class' => 'h-[50px] font-semibold w-full max-w-[200px] cursor-pointer hover:bg-black inline-flex items-center justify-center bg-primary text-white rounded-md'])}}>{{$slot}}</button>
+<button {{$attributes->merge(['class' => 'btn-primary min-h-[48px] w-full max-w-[220px] cursor-pointer'])}}>{{$slot}}</button>

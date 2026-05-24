@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -34,8 +35,10 @@ class ActionLogRepository
         }
 
         // Filter by Company Profile Id
-        $companyProfileId = auth()->user()->company_profile_id ?? 1;
-        $query->where('company_profile_id', $companyProfileId);
+        $companyProfileId = CurrentCompany::id();
+        if ($companyProfileId) {
+            $query->where('company_profile_id', $companyProfileId);
+        }
 
         // Filter by action
         if (isset($filters['action']) && !empty($filters['action'])) {
@@ -85,7 +88,7 @@ class ActionLogRepository
     ): ResponseData {
         try {
             $actionLog = ActionLog::create([
-                'company_profile_id' => auth()->user()->company_profile_id ?? 1,
+                'company_profile_id' => CurrentCompany::id(),
                 'resource_type' => $resourceType,
                 'resource_id' => $resourceId,
                 'action' => $action,
@@ -109,10 +112,11 @@ class ActionLogRepository
      */
     public function getResourceActionLogs(string $resourceType, int $resourceId): Collection
     {
-        return ActionLog::forResource($resourceType, $resourceId)
-                        ->with(['performedBy'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+        return $this->queryForCurrentCompany()
+            ->forResource($resourceType, $resourceId)
+            ->with(['performedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
@@ -124,9 +128,10 @@ class ActionLogRepository
      */
     public function getActionsByType(string $action, ?int $limit = null): Collection
     {
-        $query = ActionLog::forAction($action)
-                          ->with(['performedBy'])
-                          ->orderBy('created_at', 'desc');
+        $query = $this->queryForCurrentCompany()
+            ->forAction($action)
+            ->with(['performedBy'])
+            ->orderBy('created_at', 'desc');
 
         if ($limit) {
             $query->limit($limit);
@@ -143,10 +148,11 @@ class ActionLogRepository
      */
     public function getRecentActionLogs(int $limit = 50): Collection
     {
-        return ActionLog::with(['performedBy'])
-                        ->orderBy('created_at', 'desc')
-                        ->limit($limit)
-                        ->get();
+        return $this->queryForCurrentCompany()
+            ->with(['performedBy'])
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
     }
 
     /**
@@ -157,7 +163,7 @@ class ActionLogRepository
      */
     public function getActionLogStatistics(array $filters = []): array
     {
-        $query = ActionLog::query();
+        $query = $this->queryForCurrentCompany();
 
         // Apply date filters
         if (isset($filters['date_from']) && !empty($filters['date_from'])) {
@@ -238,9 +244,9 @@ class ActionLogRepository
     {
         return $this->createActionLog(
             ActionLog::RESOURCE_TYPE_ITEM,
+            $itemId,
             ActionLog::ACTION_ITEM_PRICE_UPDATED,
             $newPrice,
-            $performedBy,
             $remarks,
             $performedBy
         );
@@ -253,11 +259,12 @@ class ActionLogRepository
      */
     public function getEmployeeAdvanceHistory(int $employeeId): Collection
     {
-        return ActionLog::forResource(ActionLog::RESOURCE_TYPE_EMPLOYEE, $employeeId)
-                        ->forAction(ActionLog::ACTION_ADVANCE_PAID)
-                        ->with(['performedBy'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+        return $this->queryForCurrentCompany()
+            ->forResource(ActionLog::RESOURCE_TYPE_EMPLOYEE, $employeeId)
+            ->forAction(ActionLog::ACTION_ADVANCE_PAID)
+            ->with(['performedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
@@ -268,11 +275,12 @@ class ActionLogRepository
      */
     public function getEmployeeSalaryHistory(int $employeeId): Collection
     {
-        return ActionLog::forResource(ActionLog::RESOURCE_TYPE_EMPLOYEE, $employeeId)
-                        ->forAction(ActionLog::ACTION_SALARY_PAID)
-                        ->with(['performedBy'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+        return $this->queryForCurrentCompany()
+            ->forResource(ActionLog::RESOURCE_TYPE_EMPLOYEE, $employeeId)
+            ->forAction(ActionLog::ACTION_SALARY_PAID)
+            ->with(['performedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
@@ -285,7 +293,9 @@ class ActionLogRepository
     {
         try {
             $cutoffDate = now()->subDays($daysOld);
-            $deletedCount = ActionLog::where('created_at', '<', $cutoffDate)->delete();
+            $deletedCount = $this->queryForCurrentCompany()
+                ->where('created_at', '<', $cutoffDate)
+                ->delete();
 
             return new SuccessData([
                 'message' => "Deleted {$deletedCount} old action logs",
@@ -306,11 +316,7 @@ class ActionLogRepository
      */
     public function getPaginatedActionLogs(array $filters = [], int $perPage = 15)
     {
-        $query = ActionLog::with(['performedBy']);
-
-        // Filter by Company Profile Id
-        $companyProfileId = auth()->user()->company_profile_id ?? 1;
-        $query->where('company_profile_id', $companyProfileId);
+        $query = $this->queryForCurrentCompany()->with(['performedBy']);
 
         // Apply filters (same as getAllActionLogs)
         if (isset($filters['resource_type']) && !empty($filters['resource_type'])) {
@@ -339,5 +345,16 @@ class ActionLogRepository
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
+    private function queryForCurrentCompany()
+    {
+        $query = ActionLog::query();
+
+        if (CurrentCompany::id()) {
+            $query->where('company_profile_id', CurrentCompany::id());
+        }
+
+        return $query;
     }
 }

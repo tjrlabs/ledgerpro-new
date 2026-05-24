@@ -1,11 +1,11 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="w-full mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                <div class="p-6 text-gray-900">
+            <div class="page-shell">
+                <div class="page-inner">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold">Payments</h1>
-                        <a href="{{ route('payments.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center">
+                        <a href="{{ route('payments.create') }}" class="btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
@@ -14,7 +14,7 @@
                     </div>
 
                     @if(session('success'))
-                    <div id="success-alert" class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 flex justify-between items-center">
+                    <div id="success-alert" class="alert-success mb-4">
                         <div class="flex items-center">
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -30,7 +30,7 @@
                     @endif
 
                     <!-- Search and Filters Section -->
-                    <div class="bg-gray-50/70 backdrop-blur-sm p-4 rounded-lg shadow-inner border border-white mb-6">
+                    <div class="surface-muted mb-6">
                         <form method="GET" action="{{ route('payments.index') }}" class="space-y-4">
                             <!-- Advanced Filters -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
@@ -97,13 +97,13 @@
 
                             <!-- Filter Actions -->
                             <div class="flex flex-wrap gap-2">
-                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
+                                <button type="submit" class="btn-success">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
                                     </svg>
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('payments.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center">
+                                <a href="{{ route('payments.index') }}" class="btn-secondary">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                     </svg>
@@ -114,8 +114,12 @@
                     </div>
 
                     <!-- Payments Table -->
-                    <div class="overflow-x-auto bg-white/70 backdrop-blur-sm p-4 rounded-lg shadow-inner border border-white">
-                        <table class="min-w-full bg-transparent">
+                    @php
+                        $totalPaidAmount = $payments->sum('total_amount');
+                    @endphp
+
+                    <div class="app-table-wrap">
+                        <table class="app-table">
                             <thead>
                                 <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
                                     <th class="py-3 px-6 text-center">Date</th>
@@ -127,10 +131,10 @@
                                 </tr>
                             </thead>
                             <tbody class="text-gray-600 text-sm">
-                                @forelse ($pagedPayments as $payment)
+                                @forelse ($payments as $payment)
                                     <tr class="border-b border-gray-200 hover:bg-gray-50">
                                         <td class="py-3 px-6 text-center">
-                                            {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}
+                                            {{ $payment->transaction_date->format('M d, Y') }}
                                         </td>
                                         <td class="py-3 px-6 font-medium text-center">
                                             {{ $payment->client->client_name ?? 'N/A' }}
@@ -150,7 +154,7 @@
                                         </td>
                                         <td class="py-3 px-6 text-center">
                                             <div class="flex item-center justify-center gap-2">
-                                                <a href="{{ route('payments.edit', $payment->id) }}" class="bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1 rounded-md inline-flex items-center">
+                                                <a href="{{ route('payments.edit', $payment->id) }}" class="btn-soft">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
@@ -159,7 +163,7 @@
                                                 <form action="{{ route('payments.destroy', $payment->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this payment? This action cannot be undone.')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md inline-flex items-center">
+                                                    <button type="submit" class="btn-soft-danger">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
@@ -185,16 +189,23 @@
                                     </tr>
                                 @endforelse
                             </tbody>
+                            @if ($payments->isNotEmpty())
+                                <tfoot>
+                                    <tr class="bg-violet-950/60 font-semibold text-violet-50">
+                                        <td colspan="2" class="px-5 py-4 text-right text-sm uppercase tracking-[0.12em] text-violet-100/85">Total</td>
+                                        <td class="px-5 py-4 text-center text-sm">{{ number_format($totalPaidAmount, 2) }}</td>
+                                        <td colspan="3" class="px-5 py-4"></td>
+                                    </tr>
+                                </tfoot>
+                            @endif
                         </table>
                     </div>
 
-                    <!-- Pagination would go here if using Laravel's built-in pagination -->
-                    @if($pagedPayments->count() > 0)
+                    @if($payments->count() > 0)
                         <div class="mt-6 flex justify-between items-center">
                             <div class="text-sm text-gray-700">
-                                Showing {{ $pagedPayments->count() }} results
+                                Showing {{ $payments->count() }} results
                             </div>
-                            <!-- Custom pagination controls would be implemented here based on your pagination logic -->
                         </div>
                     @endif
                 </div>

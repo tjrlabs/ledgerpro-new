@@ -101,6 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/reports/payments-board/{boardId}/remove-client/{clientPaymentId}', [PaymentsBoardController::class, 'removeClient'])->name('reports.payments.board.remove-client');
     Route::put('/reports/payments-board/{id}/update', [PaymentsBoardController::class, 'update'])->name('reports.payments.board.update');
     Route::delete('/reports/payments-board/{id}/delete', [PaymentsBoardController::class, 'destroy'])->name('reports.payments.board.delete');
+    Route::post('/reports/payments-board/{id}/recalculate', [PaymentsBoardController::class, 'recalculateBoard'])->name('reports.payments.board.recalculate');
     Route::post('/reports/payments-board/client-payment/{id}/recalculate', [PaymentsBoardController::class, 'recalculateClientPayment'])->name('reports.payments.board.recalculate-client');
     Route::post('/reports/payments-board/{id}/finalize', [PaymentsBoardController::class, 'finalize'])->name('reports.payments.board.finalize');
 });

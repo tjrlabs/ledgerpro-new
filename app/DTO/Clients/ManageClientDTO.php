@@ -97,7 +97,7 @@ class ManageClientDTO implements BaseDTOInterface
     public function rules(): array
     {
         $rules = [
-            'client_name' => 'required|string|max:255',
+            'client_name' => 'required|string|min:2|max:255',
             'client_email' => 'nullable|email|max:255',
             'client_phone' => 'nullable|string|max:20',
             'client_type' => 'required|string|max:50',
@@ -110,7 +110,7 @@ class ManageClientDTO implements BaseDTOInterface
 
         // Add conditional validation rules for account balance fields
         if ($this->addOpeningBalance) {
-            $rules['account_balance'] = 'required|numeric|min:0';
+            $rules['account_balance'] = 'required|numeric';
             $rules['applicable_month'] = 'required|integer|between:1,12';
             $rules['applicable_year'] = 'required|integer|min:2020|max:' . (date('Y') + 10);
         }

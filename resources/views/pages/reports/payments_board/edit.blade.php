@@ -39,12 +39,20 @@
                                         {{$paymentsBoard->month . ' ' . $paymentsBoard->year}}
                                     </p>
                                 </div>
-                                <button type="button" id="addClients" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Add Client
-                                </button>
+                                <div class="flex items-center gap-3">
+                                    <button type="button" id="recalculateBoard" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span id="recalculate-board-btn-text">Recalculate Board</span>
+                                    </button>
+                                    <button type="button" id="addClients" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Add Client
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -55,19 +63,20 @@
                             </div>
 
                             @if($clientsPayments->isNotEmpty())
-                                <div class="overflow-x-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
+                                <div class="payments-board-table-wrap overflow-auto max-h-[72vh]">
+                                    <table class="payments-board-table min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Balance</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cash Sales</th>
-                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pre-GST Amount</th>
+                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PRE-GST Sales</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">GST Amount</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">TDS</th>
+                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Balance</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Amount</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
                                                 <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
@@ -77,14 +86,9 @@
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
                                                         <div>
                                                             <div class="text-sm font-medium text-gray-900">{{ $clientPayment->client->client_name }}</div>
-                                                            <div class="text-sm text-gray-500">{{ $clientPayment->client->email ?? 'No email' }}</div>
                                                         </div>
                                                         <input type="hidden" name="clients[{{ $index }}][id]" value="{{ $clientPayment->id }}">
                                                         <input type="hidden" name="clients[{{ $index }}][client_id]" value="{{ $clientPayment->client_id }}">
-                                                    </td>
-                                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                                        <div class="text-sm text-gray-900">{{ number_format($clientPayment->previous_balance, 2) }}</div>
-                                                        <input type="hidden" name="clients[{{ $index }}][previous_balance]" value="{{ $clientPayment->previous_balance }}">
                                                     </td>
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
                                                         <div class="text-sm text-gray-900">{{ number_format($clientPayment->cash_sales, 2) }}</div>
@@ -103,11 +107,15 @@
                                                         <input type="hidden" name="clients[{{ $index }}][tds]" value="{{ $clientPayment->tds }}">
                                                     </td>
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
+                                                        <div class="text-sm text-gray-900">{{ number_format($clientPayment->previous_balance, 2) }}</div>
+                                                        <input type="hidden" name="clients[{{ $index }}][previous_balance]" value="{{ $clientPayment->previous_balance }}">
+                                                    </td>
+                                                    <td class="px-4 py-4 whitespace-nowrap text-center">
                                                         <div class="text-sm text-gray-900 font-semibold">{{ number_format($clientPayment->total_amount, 2) }}</div>
                                                         <input type="hidden" name="clients[{{ $index }}][total_amount]" value="{{ $clientPayment->total_amount }}">
                                                     </td>
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
-                                                        <div class="text-sm text-gray-900">{{ number_format($clientPayment->paid_amount, 2) }}</div>
+                                                        <div class="text-sm text-green-600 font-medium">{{ number_format($clientPayment->paid_amount, 2) }}</div>
                                                         <input type="hidden" name="clients[{{ $index }}][paid_amount]" value="{{ $clientPayment->paid_amount }}">
                                                     </td>
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
@@ -116,8 +124,32 @@
                                                         </div>
                                                         <input type="hidden" name="clients[{{ $index }}][balance]" value="{{ ($clientPayment->total_amount - $clientPayment->paid_amount) }}">
                                                     </td>
+                                                    <td class="px-4 py-4 text-center">
+                                                        <div class="flex items-center space-x-2 justify-center">
+                                                            <textarea
+                                                                id="remarks_{{ $clientPayment->id }}"
+                                                                class="flex-1 min-w-[180px] max-w-[220px] px-3 py-2 text-xs border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden transition-colors duration-200"
+                                                                rows="1"
+                                                                placeholder="Add remarks..."
+                                                            >{{ $clientPayment->remarks ?? '' }}</textarea>
+                                                            <button
+                                                                type="button"
+                                                                class="save-remarks-btn shrink-0 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-all duration-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                                                                data-client-payment-id="{{ $clientPayment->id }}">
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                    </td>
                                                     <td class="px-4 py-4 whitespace-nowrap text-center">
                                                         <div class="flex justify-center space-x-2">
+                                                            <button type="button"
+                                                                    class="recalculate-client-btn text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50"
+                                                                    data-client-payment-id="{{ $clientPayment->id }}"
+                                                                    title="Recalculate client on payments board">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                </svg>
+                                                            </button>
                                                             <button type="button"
                                                                     class="remove-client-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
                                                                     data-client-payment-id="{{ $clientPayment->id }}"
@@ -194,6 +226,12 @@
         </div>
     </div>
 
+    <div id="toast" class="fixed top-4 right-4 z-50 hidden">
+        <div id="toast-content" class="px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium">
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -204,10 +242,105 @@
                 const closeModalBtn = document.getElementById('closeModal');
                 const cancelBtn = document.getElementById('cancelAddClients');
                 const addClientsForm = document.getElementById('addClientsForm');
+                const recalculateBoardBtn = document.getElementById('recalculateBoard');
                 const selectedCountSpan = document.getElementById('selectedCount');
+
+                function showToast(message, type = 'success') {
+                    const toast = document.getElementById('toast');
+                    const toastContent = document.getElementById('toast-content');
+                    const toastMessage = document.getElementById('toast-message');
+
+                    toastMessage.textContent = message;
+                    toastContent.className = type === 'success'
+                        ? 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium bg-green-600'
+                        : 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium bg-red-600';
+
+                    toast.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 3000);
+                }
 
                 // Handle remove client buttons
                 document.addEventListener('click', function(e) {
+                    if (e.target.closest('.save-remarks-btn')) {
+                        e.preventDefault();
+                        const saveBtn = e.target.closest('.save-remarks-btn');
+                        const clientPaymentId = saveBtn.getAttribute('data-client-payment-id');
+                        const textarea = document.getElementById(`remarks_${clientPaymentId}`);
+                        const originalText = saveBtn.innerHTML;
+
+                        saveBtn.disabled = true;
+                        saveBtn.innerHTML = 'Saving...';
+
+                        fetch(`/reports/payments-board/client-payment/${clientPaymentId}/remarks`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                remarks: textarea.value.trim()
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                textarea.value = data.remarks || '';
+                                showToast('Remarks saved successfully!', 'success');
+                            } else {
+                                showToast('Error saving remarks: ' + (data.message || 'Unknown error'), 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('AJAX Error:', error);
+                            showToast('Error saving remarks. Please try again.', 'error');
+                        })
+                        .finally(() => {
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = originalText;
+                        });
+
+                        return;
+                    }
+
+                    if (e.target.closest('.recalculate-client-btn')) {
+                        e.preventDefault();
+                        const recalculateBtn = e.target.closest('.recalculate-client-btn');
+                        const clientPaymentId = recalculateBtn.getAttribute('data-client-payment-id');
+                        const originalContent = recalculateBtn.innerHTML;
+
+                        recalculateBtn.disabled = true;
+                        recalculateBtn.innerHTML = '<svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+
+                        fetch(`/reports/payments-board/client-payment/${clientPaymentId}/recalculate`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Error recalculating payment: ' + (data.message || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('AJAX Error:', error);
+                            alert('Error recalculating payment. Please try again.');
+                        })
+                        .finally(() => {
+                            recalculateBtn.disabled = false;
+                            recalculateBtn.innerHTML = originalContent;
+                        });
+
+                        return;
+                    }
+
                     if (e.target.closest('.remove-client-btn')) {
                         e.preventDefault();
                         const removeBtn = e.target.closest('.remove-client-btn');
@@ -241,6 +374,41 @@
                         }
                     }
                 });
+
+                if (recalculateBoardBtn) {
+                    recalculateBoardBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const text = document.getElementById('recalculate-board-btn-text');
+                        const originalText = text.innerHTML;
+
+                        recalculateBoardBtn.disabled = true;
+                        text.innerHTML = 'Recalculating...';
+
+                        fetch(`/reports/payments-board/{{ $paymentsBoard->id }}/recalculate`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Error recalculating board: ' + (data.message || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('AJAX Error:', error);
+                            alert('Error recalculating board. Please try again.');
+                        })
+                        .finally(() => {
+                            recalculateBoardBtn.disabled = false;
+                            text.innerHTML = originalText;
+                        });
+                    });
+                }
 
                 if (addClientsBtn && addClientsModal) {
                     addClientsBtn.addEventListener('click', function(e) {

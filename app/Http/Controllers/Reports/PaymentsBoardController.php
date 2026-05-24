@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Classes\CurrentCompany;
 use App\Http\Controllers\Controller;
 use App\Repositories\PaymentsBoardRepository;
 use App\DTO\Reports\PaymentsBoardDTO;
 use Illuminate\Http\Request;
 use App\Classes\ErrorData;
 use App\Classes\SuccessData;
+use Carbon\Carbon;
 
 class PaymentsBoardController extends Controller
 {
@@ -113,7 +115,7 @@ class PaymentsBoardController extends Controller
         $paymentsBoard = $this->paymentsBoardRepository->findPaymentsBoard($id);
 
         if (!$paymentsBoard) {
-            return redirect()->route('reports.payments-board')
+            return redirect()->route('reports.payments.board')
                 ->withErrors(['Payments board not found.']);
         }
 
@@ -159,7 +161,7 @@ class PaymentsBoardController extends Controller
             // Validate the incoming request data
             $request->validate([
                 'clients' => 'sometimes|array',
-                'clients.*.id' => 'required|integer|exists:client_payments,id',
+                'clients.*.id' => 'required|integer|exists:clients_payments,id',
                 'clients.*.client_id' => 'required|integer|exists:clients,id',
                 'clients.*.cash_sales' => 'required|numeric|min:0',
                 'clients.*.pre_gst_amount' => 'required|numeric|min:0',
@@ -221,9 +223,10 @@ class PaymentsBoardController extends Controller
             }
 
             // Get the payments board month and year for account balance lookup
-            $boardMonth = (int) $paymentsBoard->month;
+            [$boardMonth] = explode('-', $paymentsBoard->board_month_year);
+            $boardMonth = (int) $boardMonth;
             $boardYear = (int) $paymentsBoard->year;
-            $companyProfileId = session('company_profile.id');
+            $companyProfileId = CurrentCompany::id();
 
             // Prepare client data with account balances using repository
             $clientsWithBalances = [];
@@ -409,6 +412,64 @@ class PaymentsBoardController extends Controller
     }
 
     /**
+     * Recalculate all client rows for a payments board.
+     */
+    public function recalculateBoard(Request $request, $id)
+    {
+        try {
+            $paymentsBoard = $this->paymentsBoardRepository->findPaymentsBoard($id);
+
+            if (!$paymentsBoard) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payments board not found.'
+                ], 404);
+            }
+
+            $clientsPayments = $this->clientsPaymentsRepository->getPaymentsByBoard($id);
+
+            if ($clientsPayments->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Payments board recalculated successfully.',
+                    'data' => [
+                        'recalculated_clients_count' => 0,
+                    ],
+                ]);
+            }
+
+            foreach ($clientsPayments as $clientPayment) {
+                $updatedData = $this->buildRecalculatedClientPaymentData($paymentsBoard, $clientPayment->client_id);
+
+                $result = $this->clientsPaymentsRepository->updateClientPayment($clientPayment->id, $updatedData);
+
+                if ($result instanceof ErrorData) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to update client payment.',
+                        'errors' => $result->getErrorMessages()
+                    ], 400);
+                }
+            }
+
+            $this->updatePaymentsBoardTotals($paymentsBoard->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payments board recalculated successfully.',
+                'data' => [
+                    'recalculated_clients_count' => $clientsPayments->count(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while recalculating the payments board: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Recalculate client payment data
      */
     public function recalculateClientPayment(Request $request, $id)
@@ -433,47 +494,7 @@ class PaymentsBoardController extends Controller
                 ], 404);
             }
 
-            $startDate = $paymentsBoard->start_date;
-            $endDate = $paymentsBoard->end_date;
-            $clientId = $clientPayment->client_id;
-            $companyProfileId = session('company_profile.id');
-
-            // Get fresh account balance data
-            $boardMonth = (int) $paymentsBoard->month;
-            $boardYear = (int) $paymentsBoard->year;
-
-            // First try to get account balance for the exact board period
-            $accountBalance = $this->accountBalanceRepository->getAccountBalanceForPeriod(
-                $clientId,
-                $companyProfileId,
-                $boardMonth,
-                $boardYear
-            );
-
-            // If no specific balance found, get the most recent one for this client
-            if (!$accountBalance) {
-                $clientBalances = $this->accountBalanceRepository->getClientAccountBalances($clientId, $companyProfileId);
-                $accountBalance = $clientBalances->first();
-            }
-
-            // Set previous balance (default to 0.00 if no balance found)
-            $previousBalance = $accountBalance ? $accountBalance->opening_balance : 0.00;
-
-            // Recalculate transaction amounts using the private method from ClientsPaymentsRepository
-            // We need to expose this calculation or create a new method
-            $transactionAmounts = $this->calculateClientTransactionAmounts($clientId, $startDate, $endDate);
-
-            // Update the client payment with recalculated data
-            $updatedData = [
-                'cash_sales' => $transactionAmounts['cash_sales'],
-                'pre_gst_amount' => $transactionAmounts['pre_gst_amount'],
-                'gst_amount' => $transactionAmounts['gst_amount'],
-                'tds' => $transactionAmounts['tds'],
-                'subtotal_amount' => $transactionAmounts['subtotal_amount'],
-                'previous_balance' => $previousBalance,
-                'total_amount' => $transactionAmounts['total_amount'] + $previousBalance,
-                'updated_at' => now(),
-            ];
+            $updatedData = $this->buildRecalculatedClientPaymentData($paymentsBoard, $clientPayment->client_id);
 
             $result = $this->clientsPaymentsRepository->updateClientPayment($id, $updatedData);
 
@@ -503,24 +524,70 @@ class PaymentsBoardController extends Controller
     }
 
     /**
+     * Build recalculated row data for a client on a payments board.
+     */
+    private function buildRecalculatedClientPaymentData($paymentsBoard, int $clientId): array
+    {
+        $companyProfileId = CurrentCompany::id();
+        [$boardMonth] = explode('-', $paymentsBoard->board_month_year);
+        $boardMonth = (int) $boardMonth;
+        $boardYear = (int) $paymentsBoard->year;
+
+        $accountBalance = $this->accountBalanceRepository->getAccountBalanceForPeriod(
+            $clientId,
+            $companyProfileId,
+            $boardMonth,
+            $boardYear
+        );
+
+        if (!$accountBalance) {
+            $clientBalances = $this->accountBalanceRepository->getClientAccountBalances($clientId, $companyProfileId);
+            $accountBalance = $clientBalances->first();
+        }
+
+        $previousBalance = $accountBalance ? $accountBalance->opening_balance : 0.00;
+        $transactionAmounts = $this->calculateClientTransactionAmounts(
+            $clientId,
+            $paymentsBoard->start_date,
+            $paymentsBoard->end_date
+        );
+
+        return [
+            'cash_sales' => $transactionAmounts['cash_sales'],
+            'pre_gst_amount' => $transactionAmounts['pre_gst_amount'],
+            'gst_amount' => $transactionAmounts['gst_amount'],
+            'tds' => $transactionAmounts['tds'],
+            'subtotal_amount' => $transactionAmounts['subtotal_amount'],
+            'previous_balance' => $previousBalance,
+            'total_amount' => $transactionAmounts['total_amount'] + $previousBalance,
+            'paid_amount' => $transactionAmounts['paid_amount'],
+            'updated_at' => now(),
+        ];
+    }
+
+    /**
      * Calculate transaction amounts for a client within a specific date range
      * This method is exposed from the private method in ClientsPaymentsRepository
      */
     private function calculateClientTransactionAmounts(int $clientId, $startDate, $endDate): array
     {
+        [$paymentWindowStart, $paymentWindowEnd] = $this->getPaymentWindow($startDate, $endDate);
+
         // Import Transaction model
         $transactionModel = new \App\Models\Transaction();
 
         // Get all sales transactions for this client in the date range
         $salesTransactions = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'sale')
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->get();
 
         // Get all payment transactions for this client in the date range
         $paymentTransactions = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'payment')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->whereBetween('transaction_date', [$paymentWindowStart, $paymentWindowEnd])
             ->get();
 
         // Calculate cash sales (transactions with sales_type = 'cash')
@@ -554,6 +621,14 @@ class PaymentsBoardController extends Controller
         ];
     }
 
+    private function getPaymentWindow($startDate, $endDate): array
+    {
+        $paymentWindowStart = Carbon::parse($endDate)->addDay()->startOfDay();
+        $paymentWindowEnd = Carbon::parse($endDate)->addMonthNoOverflow()->endOfMonth();
+
+        return [$paymentWindowStart, $paymentWindowEnd];
+    }
+
     /**
      * Update payments board totals based on aggregated client payments data
      */
@@ -574,11 +649,11 @@ class PaymentsBoardController extends Controller
                 'total_pre_gst_amount' => $payments->sum('pre_gst_amount'),
                 'total_gst_amount' => $payments->sum('gst_amount'),
                 'total_tds' => $payments->sum('tds'),
-                'total_subtotal_amount' => $payments->sum('subtotal_amount'),
+                'total_net_amount' => $payments->sum('subtotal_amount'),
                 'total_previous_balance' => $payments->sum('previous_balance'),
                 'total_amount' => $payments->sum('total_amount'),
                 'total_paid_amount' => $payments->sum('paid_amount'),
-                'total_outstanding' => $payments->sum(function ($payment) {
+                'total_unpaid_amount' => $payments->sum(function ($payment) {
                     return $payment->total_amount - $payment->paid_amount;
                 }),
                 'clients_count' => $payments->count(),
@@ -630,7 +705,7 @@ class PaymentsBoardController extends Controller
                 $nextYear += 1;
             }
 
-            $companyProfileId = session('company_profile.id');
+            $companyProfileId = CurrentCompany::id();
             $finalizedClients = [];
 
             // Process each client payment and create/update account balance for next month
@@ -667,8 +742,6 @@ class PaymentsBoardController extends Controller
 
             // Mark the payments board as finalized (if there's a status field)
             $this->paymentsBoardRepository->updatePaymentsBoard($id, [
-                'is_finalized' => true,
-                'finalized_at' => now(),
                 'updated_at' => now()
             ]);
 

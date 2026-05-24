@@ -1,11 +1,11 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="w-full mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                <div class="p-6 text-gray-900">
+            <div class="page-shell">
+                <div class="page-inner">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold">Sales Transactions</h1>
-                        <a href="{{ route('sales.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center">
+                        <a href="{{ route('sales.create') }}" class="btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
@@ -14,7 +14,7 @@
                     </div>
 
                     <!-- Filters Section -->
-                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="surface-muted mb-6">
                         <form action="{{ route('sales.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                             <div>
                                 <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
@@ -61,10 +61,10 @@
                             </div>
 
                             <div>
-                                <button type="submit" class="h-9 mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <button type="submit" class="btn-primary mt-6 h-11">
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('sales.index') }}" class="h-9 mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ml-2 inline-flex items-center">
+                                <a href="{{ route('sales.index') }}" class="btn-secondary mt-6 ml-2 inline-flex h-11 items-center">
                                     Reset
                                 </a>
                             </div>
@@ -86,7 +86,7 @@
                     </div>
 
                     @if(session('success'))
-                    <div id="success-alert" class="mb-4 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 flex justify-between items-center">
+                    <div id="success-alert" class="alert-success mb-4">
                         <div class="flex items-center">
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -101,8 +101,15 @@
                     </div>
                     @endif
 
-                    <div class="overflow-x-auto bg-white/70 backdrop-blur-sm p-4 rounded-lg shadow-inner border border-white">
-                        <table class="min-w-full bg-transparent">
+                    @php
+                        $totalBaseAmount = $sales->sum('base_amount');
+                        $totalTaxAmount = $sales->sum('tax_amount');
+                        $totalTdsAmount = $sales->sum('tds');
+                        $grandTotalAmount = $sales->sum('total_amount');
+                    @endphp
+
+                    <div class="app-table-wrap">
+                        <table class="app-table">
                             <thead>
                                 <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
                                     <th class="py-3 px-6 text-center">S.NO</th>
@@ -119,7 +126,7 @@
                             </thead>
                             <tbody class="text-gray-600 text-sm">
                                 @forelse ($sales as $index => $sale)
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <tr class="border-b border-gray-200 {{ $sale->paid ? 'sales-row-paid' : 'hover:bg-gray-50' }}">
                                         <td class="py-3 px-6 text-center">{{ $index + 1 }}</td>
                                         <td class="py-3 px-6 text-center">{{ $sale->transaction_date->format('d-m-Y') }}</td>
                                         <td class="py-3 px-6 text-center">{{ $sale->client->client_name ?? 'N/A' }}</td>
@@ -148,7 +155,7 @@
                                         </td>
                                         <td class="py-3 px-6 text-center">
                                             <div class="flex item-center justify-center space-x-2">
-                                                <a href="{{ route('sales.edit', $sale->id) }}" class="bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-1 rounded-md inline-flex items-center">
+                                                <a href="{{ route('sales.edit', $sale->id) }}" class="btn-soft">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
@@ -156,7 +163,7 @@
                                                 <form method="POST" action="{{ route('sales.destroy', $sale->id) }}" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this sale? This action cannot be undone.');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md inline-flex items-center">
+                                                    <button type="submit" class="btn-soft-danger">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
@@ -179,6 +186,18 @@
                                     </tr>
                                 @endforelse
                             </tbody>
+                            @if ($sales->isNotEmpty())
+                                <tfoot>
+                                    <tr class="bg-violet-950/60 font-semibold text-violet-50">
+                                        <td colspan="4" class="px-5 py-4 text-right text-sm uppercase tracking-[0.12em] text-violet-100/85">Totals</td>
+                                        <td class="px-5 py-4 text-center text-sm">{{ number_format($totalBaseAmount, 2) }}</td>
+                                        <td class="px-5 py-4 text-center text-sm">{{ number_format($totalTaxAmount, 2) }}</td>
+                                        <td class="px-5 py-4 text-center text-sm">{{ number_format($totalTdsAmount, 2) }}</td>
+                                        <td class="px-5 py-4 text-center text-sm">{{ number_format($grandTotalAmount, 2) }}</td>
+                                        <td colspan="2" class="px-5 py-4"></td>
+                                    </tr>
+                                </tfoot>
+                            @endif
                         </table>
                     </div>
                 </div>

@@ -41,32 +41,17 @@ class LedgerController extends Controller
         $clientId = $request->get('client_id');
         $transactionType = $request->get('transaction_type');
 
-        // Build query for all transactions
-        $transactions = collect();
+        $filters = [
+            'client_id' => $clientId,
+            'transaction_type' => $transactionType,
+        ];
 
         if ($startDate && $endDate) {
-            $transactions = $this->transactionRepository->getTransactionsByDateRange(
-                $startDate->format('Y-m-d'),
-                $endDate->format('Y-m-d')
-            );
-        } else {
-            $transactions = $this->transactionRepository->getAllTransactions();
+            $filters['start_date'] = $startDate->format('Y-m-d');
+            $filters['end_date'] = $endDate->format('Y-m-d');
         }
 
-        // Apply filters
-        if ($clientId) {
-            $transactions = $transactions->where('client_id', $clientId);
-        }
-
-        if ($transactionType) {
-            $transactions = $transactions->where('transaction_type', $transactionType);
-        }
-
-        // Exclude expense transactions - only show sales and payments
-        $transactions = $transactions->whereIn('transaction_type', ['sale', 'payment']);
-
-        // Sort transactions for display (newest first)
-        $transactions = $transactions->sortByDesc('transaction_date');
+        $transactions = $this->transactionRepository->getLedgerTransactions($filters);
 
         // Calculate statistics
         $totalIncome = 0;
@@ -87,7 +72,7 @@ class LedgerController extends Controller
             }
         }
 
-        $netBalance = $totalIncome + $totalPayments - $totalExpenses;
+        $netBalance = $totalIncome - $totalPayments;
 
         // Get clients for filter dropdown
         $clients = $this->clientsRepository->getAllClients();

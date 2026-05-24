@@ -1,11 +1,11 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="w-full mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                <div class="p-6 text-gray-900">
+            <div class="page-shell">
+                <div class="page-inner">
                     <div class="flex justify-between items-center mb-6">
                         <h1 class="text-2xl font-bold">Expense Management</h1>
-                        <a href="{{ route('expenses.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center">
+                        <a href="{{ route('expenses.create') }}" class="btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
@@ -15,7 +15,7 @@
 
                     <!-- Flash Messages -->
                     @if(session('success'))
-                        <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 flex items-center justify-between" role="alert">
+                        <div class="alert-success mb-6" role="alert">
                             <div class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
@@ -31,7 +31,7 @@
                     @endif
 
                     @if(session('error'))
-                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center justify-between" role="alert">
+                        <div class="alert-error mb-6 flex items-center justify-between" role="alert">
                             <div class="flex items-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-600" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -106,7 +106,7 @@
                     </div>
 
                     <!-- Filters Section -->
-                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="surface-muted mb-6">
                         <form action="{{ route('expenses.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                                 <label for="expense_type" class="block text-sm font-medium text-gray-700 mb-1">Expense Type</label>
@@ -143,10 +143,10 @@
                             </div>
 
                             <div>
-                                <button type="submit" class="h-9 mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <button type="submit" class="btn-primary mt-6 h-11">
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('expenses.index') }}" class="h-9 mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ml-2 inline-flex items-center">
+                                <a href="{{ route('expenses.index') }}" class="btn-secondary mt-6 ml-2 inline-flex h-11 items-center">
                                     Reset
                                 </a>
                             </div>

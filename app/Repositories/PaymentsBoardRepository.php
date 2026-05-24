@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -26,7 +27,7 @@ class PaymentsBoardRepository
      */
     public function getAllPaymentsBoards(array $filters = []): Collection
     {
-        $query = PaymentsBoard::query();
+        $query = PaymentsBoard::forCompany(CurrentCompany::id());
 
         // Filter by month and year
         if (isset($filters['month_year']) && !empty($filters['month_year'])) {
@@ -51,7 +52,11 @@ class PaymentsBoardRepository
     {
         try {
             // Check if board already exists for this month-year
-            $existingBoard = PaymentsBoard::byMonthYear($boardData['board_month_year'])->first();
+            $boardData['company_profile_id'] = CurrentCompany::id();
+
+            $existingBoard = PaymentsBoard::forCompany(CurrentCompany::id())
+                ->byMonthYear($boardData['board_month_year'])
+                ->first();
 
             if ($existingBoard) {
                 return new ErrorData(['Payments board already exists for this period']);
@@ -102,7 +107,7 @@ class PaymentsBoardRepository
      */
     public function findPaymentsBoard(int $id): ?PaymentsBoard
     {
-        return PaymentsBoard::find($id);
+        return PaymentsBoard::forCompany(CurrentCompany::id())->find($id);
     }
 
     /**
@@ -113,7 +118,9 @@ class PaymentsBoardRepository
      */
     public function findByMonthYear(string $monthYear): ?PaymentsBoard
     {
-        return PaymentsBoard::byMonthYear($monthYear)->first();
+        return PaymentsBoard::forCompany(CurrentCompany::id())
+            ->byMonthYear($monthYear)
+            ->first();
     }
 
     /**
@@ -126,7 +133,7 @@ class PaymentsBoardRepository
     public function updatePaymentsBoard(int $id, array $boardData): ResponseData
     {
         try {
-            $paymentsBoard = PaymentsBoard::find($id);
+            $paymentsBoard = PaymentsBoard::forCompany(CurrentCompany::id())->find($id);
 
             if (!$paymentsBoard) {
                 return new ErrorData(['Payments board not found']);
@@ -155,7 +162,7 @@ class PaymentsBoardRepository
     public function deletePaymentsBoard(int $id): ResponseData
     {
         try {
-            $paymentsBoard = PaymentsBoard::find($id);
+            $paymentsBoard = PaymentsBoard::forCompany(CurrentCompany::id())->find($id);
 
             if (!$paymentsBoard) {
                 return new ErrorData(['Payments board not found']);
@@ -181,7 +188,10 @@ class PaymentsBoardRepository
      */
     public function getByYear(int $year): Collection
     {
-        return PaymentsBoard::byYear($year)->latest()->get();
+        return PaymentsBoard::forCompany(CurrentCompany::id())
+            ->byYear($year)
+            ->latest()
+            ->get();
     }
 
     /**
@@ -191,7 +201,7 @@ class PaymentsBoardRepository
      */
     public function getLatest(): ?PaymentsBoard
     {
-        return PaymentsBoard::latest()->first();
+        return PaymentsBoard::forCompany(CurrentCompany::id())->latest()->first();
     }
 
     /**
@@ -203,7 +213,10 @@ class PaymentsBoardRepository
      */
     public function getByDateRange(string $startDate, string $endDate): Collection
     {
-        return PaymentsBoard::byDateRange($startDate, $endDate)->latest()->get();
+        return PaymentsBoard::forCompany(CurrentCompany::id())
+            ->byDateRange($startDate, $endDate)
+            ->latest()
+            ->get();
     }
 
     /**
@@ -215,7 +228,7 @@ class PaymentsBoardRepository
     public function recalculateTotals(int $id): ResponseData
     {
         try {
-            $paymentsBoard = PaymentsBoard::find($id);
+            $paymentsBoard = PaymentsBoard::forCompany(CurrentCompany::id())->find($id);
 
             if (!$paymentsBoard) {
                 return new ErrorData(['Payments board not found']);

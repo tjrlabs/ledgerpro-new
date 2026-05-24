@@ -296,7 +296,7 @@ class EmployeeController extends Controller
             'success' => true,
             'message' => 'Advance payment processed successfully.',
             'data' => [
-                'updated_advance_due' => $response // Assuming repository returns updated advance_due amount
+                'updated_advance_due' => $response->data['updated_advance_due'] ?? null
             ]
         ], 200);
     }

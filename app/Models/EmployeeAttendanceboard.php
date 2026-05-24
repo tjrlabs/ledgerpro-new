@@ -23,6 +23,7 @@ class EmployeeAttendanceboard extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'company_profile_id',
         'employee_id',
         'attendance_id',
         'per_day_salary',
@@ -48,6 +49,7 @@ class EmployeeAttendanceboard extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'company_profile_id' => 'integer',
         'per_day_salary' => 'decimal:2',
         'per_hour_salary' => 'decimal:2',
         'present_days' => 'integer',
@@ -63,6 +65,14 @@ class EmployeeAttendanceboard extends Model
         'balance_carry_forward' => 'decimal:2',
 //        'advance_due' => 'decimal:2',
     ];
+
+    /**
+     * Get the company profile that owns this attendance row.
+     */
+    public function companyProfile(): BelongsTo
+    {
+        return $this->belongsTo(CompanyProfile::class);
+    }
 
     /**
      * Get the employee that owns this attendance board record.
@@ -94,6 +104,14 @@ class EmployeeAttendanceboard extends Model
     public function scopeForAttendancePeriod($query, $attendanceId)
     {
         return $query->where('attendance_id', $attendanceId);
+    }
+
+    /**
+     * Scope to filter by company.
+     */
+    public function scopeForCompany($query, int $companyProfileId)
+    {
+        return $query->where('company_profile_id', $companyProfileId);
     }
 
     /**

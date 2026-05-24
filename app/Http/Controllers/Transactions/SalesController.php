@@ -64,40 +64,27 @@ class SalesController extends Controller
                 break;
         }
 
-        // Get sales transactions with filters
-        $sales = collect();
+        $filters = [
+            'client_id' => $request->client_id,
+            'sale_type' => $request->sale_type,
+            'payment_status' => $request->payment_status,
+        ];
 
         if ($startDate && $endDate) {
-            $sales = $this->transactionRepository->getTransactionsByDateRange(
-                $startDate->format('Y-m-d'),
-                $endDate->format('Y-m-d')
-            )->filter(function($transaction) {
-                return $transaction->transaction_type === 'sale';
-            });
-        } else {
-            $sales = $this->transactionRepository->getSalesTransactions();
+            $filters['start_date'] = $startDate->format('Y-m-d');
+            $filters['end_date'] = $endDate->format('Y-m-d');
         }
 
-        // Apply additional filters
-        if ($request->has('client_id') && !empty($request->client_id)) {
-            $sales = $sales->where('client_id', $request->client_id);
-        }
-
-        if ($request->has('sale_type') && !empty($request->sale_type)) {
-            $sales = $sales->where('sales_type', $request->sale_type);
-        }
-
-        if($request->has('payment_status') && $request->payment_status !== '') {
-            $paymentStatus = $request->payment_status === '1';
-            $sales = $sales->where('paid', $paymentStatus);
-        }
+        $sales = $this->transactionRepository->getFilteredSales($filters);
 
         return view('pages.transactions.sales.index', compact('sales', 'clients', 'dateRange', 'startDate', 'endDate'));
     }
 
     public function create() {
         $clients = $this->clientsRepository->getAllClients();
-        return view('pages.transactions.sales.create', compact('clients'));
+        $availablePaymentsByClient = $this->buildAvailablePaymentsByClient();
+
+        return view('pages.transactions.sales.create', compact('clients', 'availablePaymentsByClient'));
     }
 
     /**
@@ -154,10 +141,12 @@ class SalesController extends Controller
         }
 
         $clients = $this->clientsRepository->getAllClients();
+        $availablePaymentsByClient = $this->buildAvailablePaymentsByClient($sale->id);
 
         return view('pages.transactions.sales.create', [
             'sale' => $sale,
             'clients' => $clients,
+            'availablePaymentsByClient' => $availablePaymentsByClient,
             'isEditing' => true
         ]);
     }
@@ -200,6 +189,25 @@ class SalesController extends Controller
         }
 
         return redirect()->route('sales.index')->with('success', 'Sale updated successfully!');
+    }
+
+    private function buildAvailablePaymentsByClient(?int $currentSaleId = null): array
+    {
+        return $this->transactionRepository
+            ->getAvailablePaymentsForSaleSelection($currentSaleId)
+            ->groupBy('client_id')
+            ->map(fn ($payments) => $payments->map(function ($payment) {
+                return [
+                    'id' => $payment->id,
+                    'label' => sprintf(
+                        '#%d | INR %s | %s',
+                        $payment->id,
+                        number_format((float) $payment->total_amount, 2),
+                        $payment->transaction_date?->format('d M Y') ?? ''
+                    ),
+                ];
+            })->values()->all())
+            ->toArray();
     }
 
     /**

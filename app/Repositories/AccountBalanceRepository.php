@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -207,7 +208,13 @@ class AccountBalanceRepository
     public function deleteAccountBalancesByClient(int $clientId)
     {
         try {
-            AccountBalance::where('client_id', $clientId)->delete();
+            $query = AccountBalance::where('client_id', $clientId);
+
+            if (CurrentCompany::id()) {
+                $query->where('company_profile_id', CurrentCompany::id());
+            }
+
+            $query->delete();
             return true;
         } catch (Exception $e) {
 

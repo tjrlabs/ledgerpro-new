@@ -85,7 +85,7 @@ $(document).ready(function() {
         rules: {
             client_name: {
                 required: true,
-                minlength: 3
+                minlength: 2
             },
             client_email: {
                 email: true
@@ -97,7 +97,7 @@ $(document).ready(function() {
         messages: {
             client_name: {
                 required: "Please enter the client's name",
-                minlength: "Client's name must be at least 3 characters long"
+                minlength: "Client's name must be at least 2 characters long"
             },
             client_email: {
                 email: "Please enter a valid email address"

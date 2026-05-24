@@ -48,22 +48,20 @@
                         </div>
 
                         @if($clientsPayments->isNotEmpty())
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
+                            <div class="payments-board-table-wrap overflow-auto max-h-[72vh]">
+                                <table class="payments-board-table min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">S.No</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Balance</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cash Sales</th>
-                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pre-GST Amount</th>
+                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">PRE-GST Sales</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">GST Amount</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">TDS</th>
+                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Previous Balance</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Amount</th>
                                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
-                                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Re-calculate</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -75,11 +73,7 @@
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
                                                     <div>
                                                         <div class="text-sm font-medium text-gray-900">{{ $clientPayment->client->client_name }}</div>
-                                                        <div class="text-sm text-gray-500">{{ $clientPayment->client->email ?? 'No email' }}</div>
                                                     </div>
-                                                </td>
-                                                <td class="px-4 py-4 whitespace-nowrap text-center">
-                                                    <div class="text-sm text-gray-900">₹{{ number_format($clientPayment->previous_balance, 2) }}</div>
                                                 </td>
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
                                                     <div class="text-sm text-gray-900">₹{{ number_format($clientPayment->cash_sales, 2) }}</div>
@@ -94,10 +88,13 @@
                                                     <div class="text-sm text-gray-900">₹{{ number_format($clientPayment->tds, 2) }}</div>
                                                 </td>
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
+                                                    <div class="text-sm text-gray-900">₹{{ number_format($clientPayment->previous_balance, 2) }}</div>
+                                                </td>
+                                                <td class="px-4 py-4 whitespace-nowrap text-center">
                                                     <div class="text-sm text-gray-900 font-semibold">₹{{ number_format($clientPayment->total_amount, 2) }}</div>
                                                 </td>
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
-                                                    <div class="text-sm text-gray-900">₹{{ number_format($clientPayment->paid_amount, 2) }}</div>
+                                                    <div class="text-sm text-green-600 font-medium">₹{{ number_format($clientPayment->paid_amount, 2) }}</div>
                                                 </td>
                                                 <td class="px-4 py-4 whitespace-nowrap text-center">
                                                     @php
@@ -107,46 +104,20 @@
                                                         ₹{{ number_format($balance, 2) }}
                                                     </div>
                                                 </td>
-                                                <td class="px-4 py-4 text-center">
-                                                    <div class="flex items-center space-x-2 justify-center">
-                                                        <textarea
-                                                            id="remarks_{{ $clientPayment->id }}"
-                                                            class="flex-1 min-w-[180px] max-w-[220px] px-3 py-2 text-xs border border-gray-300 rounded-md resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden transition-colors duration-200"
-                                                            rows="1"
-                                                            placeholder="Add remarks..."
-                                                        >{{ $clientPayment->remarks ?? '' }}</textarea>
-                                                        <button
-                                                            type="button"
-                                                            onclick="saveRemarks({{ $clientPayment->id }})"
-                                                            class="shrink-0 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded transition-all duration-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500">
-                                                            Save
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                                <td class="px-4 py-4 text-center">
-                                                    <button
-                                                        type="button"
-                                                        onclick="recalculateClientPayment({{ $clientPayment->id }})"
-                                                        class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded transition-all duration-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500">
-                                                        Recalculate
-                                                    </button>
-                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot class="bg-gray-50">
                                         <tr class="font-semibold">
                                             <td colspan="2" class="px-4 py-3 text-center text-sm text-gray-900">Total</td>
-                                            <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('previous_balance'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('cash_sales'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('pre_gst_amount'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('gst_amount'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('tds'), 2) }}</td>
+                                            <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('previous_balance'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900 font-bold">₹{{ number_format($clientsPayments->sum('total_amount'), 2) }}</td>
-                                            <td class="px-4 py-3 text-center text-sm text-gray-900">₹{{ number_format($clientsPayments->sum('paid_amount'), 2) }}</td>
+                                            <td class="px-4 py-3 text-center text-sm text-green-600 font-medium">₹{{ number_format($clientsPayments->sum('paid_amount'), 2) }}</td>
                                             <td class="px-4 py-3 text-center text-sm text-gray-900 font-bold">₹{{ number_format($clientsPayments->sum('total_amount') - $clientsPayments->sum('paid_amount'), 2) }}</td>
-                                            <td class="px-4 py-3 text-center text-sm text-gray-900">-</td>
-                                            <td class="px-4 py-3 text-center text-sm text-gray-900">-</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -164,7 +135,7 @@
 
                     <!-- Finalize Button Section -->
                     @if($clientsPayments->isNotEmpty())
-                        <div class="mt-6 flex justify-center">
+                        <div class="mt-6 flex justify-center gap-4">
                             <button
                                 type="button"
                                 onclick="finalizePaymentsBoard()"
@@ -200,115 +171,7 @@
         </div>
     </div>
 
-    <!-- Success/Error Toast Notification -->
-    <div id="toast" class="fixed top-4 right-4 z-50 hidden">
-        <div id="toast-content" class="px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium">
-            <span id="toast-message"></span>
-        </div>
-    </div>
-
     <script>
-        // Function to save remarks for a specific client payment
-        function saveRemarks(clientPaymentId) {
-            const textarea = document.getElementById(`remarks_${clientPaymentId}`);
-            const remarks = textarea.value.trim();
-            const button = event.target;
-
-            // Disable button and show loading state
-            button.disabled = true;
-            button.innerHTML = '<svg class="animate-spin h-3 w-3 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Saving...';
-
-            // Send AJAX request to save remarks
-            fetch(`/reports/payments-board/client-payment/${clientPaymentId}/remarks`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    remarks: remarks
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Remarks saved successfully!', 'success');
-                    // Update textarea with saved remarks
-                    textarea.value = data.remarks || '';
-                } else {
-                    showToast('Error saving remarks: ' + (data.message || 'Unknown error'), 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error saving remarks. Please try again.', 'error');
-            })
-            .finally(() => {
-                // Re-enable button and restore original text
-                button.disabled = false;
-                button.innerHTML = 'Save';
-            });
-        }
-
-        // Function to show toast notifications
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastContent = document.getElementById('toast-content');
-            const toastMessage = document.getElementById('toast-message');
-
-            // Set message
-            toastMessage.textContent = message;
-
-            // Set color based on type
-            if (type === 'success') {
-                toastContent.className = 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium bg-green-600';
-            } else {
-                toastContent.className = 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-medium bg-red-600';
-            }
-
-            // Show toast
-            toast.classList.remove('hidden');
-
-            // Hide toast after 3 seconds
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
-        }
-
-        // Function to recalculate client payment
-        function recalculateClientPayment(clientPaymentId) {
-            // Show loading state on button
-            const button = event.target;
-            button.innerHTML = '<svg class="animate-spin h-4 w-4 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Recalculating...';
-
-            // Send AJAX request to recalculate payment
-            fetch(`/reports/payments-board/client-payment/${clientPaymentId}/recalculate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Payment recalculated successfully!', 'success');
-                    // Optionally, refresh the page or update the table row with new data
-                    location.reload();
-                } else {
-                    showToast('Error recalculating payment: ' + (data.message || 'Unknown error'), 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error recalculating payment. Please try again.', 'error');
-            })
-            .finally(() => {
-                // Restore button text
-                button.innerHTML = 'Recalculate';
-            });
-        }
-
         // Function to finalize the payments board
         function finalizePaymentsBoard() {
             const button = event.target;

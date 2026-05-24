@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -26,6 +27,7 @@ class TransactionRepository
     public function getAllTransactions(): Collection
     {
         return Transaction::with(['client', 'companyProfile'])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->orderBy('transaction_date', 'desc')
                          ->get();
     }
@@ -39,6 +41,7 @@ class TransactionRepository
     public function getPaginatedTransactions(int $perPage = 15): LengthAwarePaginator
     {
         return Transaction::with(['client', 'companyProfile'])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->orderBy('transaction_date', 'desc')
                          ->paginate($perPage);
     }
@@ -51,6 +54,7 @@ class TransactionRepository
     public function getSalesTransactions(): Collection
     {
         return Transaction::sales()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->with(['client', 'companyProfile'])
                          ->orderBy('transaction_date', 'desc')
                          ->get();
@@ -64,9 +68,64 @@ class TransactionRepository
     public function getPaymentTransactions(): Collection
     {
         return Transaction::payments()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->with(['client', 'companyProfile'])
                          ->orderBy('transaction_date', 'desc')
                          ->get();
+    }
+
+    /**
+     * Get sales transactions with query-level filtering.
+     */
+    public function getFilteredSales(array $filters = []): Collection
+    {
+        $query = Transaction::sales()
+            ->where('company_profile_id', CurrentCompany::id())
+            ->with(['client', 'companyProfile'])
+            ->orderBy('transaction_date', 'desc');
+
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $query->whereBetween('transaction_date', [$filters['start_date'], $filters['end_date']]);
+        }
+
+        if (!empty($filters['client_id'])) {
+            $query->where('client_id', $filters['client_id']);
+        }
+
+        if (!empty($filters['sale_type'])) {
+            $query->where('sales_type', $filters['sale_type']);
+        }
+
+        if (array_key_exists('payment_status', $filters) && $filters['payment_status'] !== '' && $filters['payment_status'] !== null) {
+            $query->where('paid', filter_var($filters['payment_status'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $filters['payment_status'] === '1');
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Get ledger transactions with query-level filtering.
+     */
+    public function getLedgerTransactions(array $filters = []): Collection
+    {
+        $query = Transaction::where('company_profile_id', CurrentCompany::id())
+            ->whereIn('transaction_type', ['sale', 'payment'])
+            ->with(['client', 'companyProfile'])
+            ->orderBy('transaction_date', 'desc');
+
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $query->whereBetween('transaction_date', [$filters['start_date'], $filters['end_date']]);
+        }
+
+        if (!empty($filters['client_id'])) {
+            $query->where('client_id', $filters['client_id']);
+        }
+
+        if (!empty($filters['transaction_type'])) {
+            $query->where('transaction_type', $filters['transaction_type']);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -77,6 +136,7 @@ class TransactionRepository
     public function getUnpaidSales(): Collection
     {
         return Transaction::unpaidSales()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->with(['client', 'companyProfile'])
                          ->orderBy('transaction_date', 'desc')
                          ->get();
@@ -91,9 +151,21 @@ class TransactionRepository
     public function getTransactionsByClient(int $clientId): Collection
     {
         return Transaction::where('client_id', $clientId)
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->with(['client', 'companyProfile'])
                          ->orderBy('transaction_date', 'desc')
                          ->get();
+    }
+
+    /**
+     * Determine whether a client has sales or payment transactions.
+     */
+    public function clientHasSalesOrPayments(int $clientId): bool
+    {
+        return Transaction::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
+            ->whereIn('transaction_type', ['sale', 'payment'])
+            ->exists();
     }
 
     /**
@@ -106,6 +178,7 @@ class TransactionRepository
     public function getTransactionsByDateRange(string $startDate, string $endDate): Collection
     {
         return Transaction::whereBetween('transaction_date', [$startDate, $endDate])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->with(['client', 'companyProfile'])
                          ->orderBy('transaction_date', 'desc')
                          ->get();
@@ -120,6 +193,7 @@ class TransactionRepository
     public function getFilteredExpenses(array $filters = []): Collection
     {
         $query = Transaction::where('transaction_type', 'expense')
+                           ->where('company_profile_id', CurrentCompany::id())
                            ->with(['client', 'companyProfile'])
                            ->orderBy('transaction_date', 'desc');
 
@@ -224,8 +298,8 @@ class TransactionRepository
         try {
             // Create a new transaction
             $transaction = new Transaction();
-            $transaction->company_profile_id = session('company_profile.id');
-            $transaction->fill($transactionData);
+            $transaction->company_profile_id = CurrentCompany::id();
+            $transaction->fill($this->normalizeTransactionData($transactionData));
 
             // Save the transaction to the database
             $transaction->save();
@@ -255,10 +329,11 @@ class TransactionRepository
     {
         try {
             // Find the transaction to update
-            $transaction = Transaction::findOrFail($id);
+            $transaction = Transaction::where('company_profile_id', CurrentCompany::id())
+                ->findOrFail($id);
 
             // Update the transaction
-            $transaction->fill($transactionData);
+            $transaction->fill($this->normalizeTransactionData($transactionData));
 
             // Save the updated transaction to the database
             $transaction->save();
@@ -277,6 +352,15 @@ class TransactionRepository
         }
     }
 
+    private function normalizeTransactionData(array $transactionData): array
+    {
+        if (($transactionData['transaction_type'] ?? null) === 'sale' && !empty($transactionData['payment_id'])) {
+            $transactionData['paid'] = true;
+        }
+
+        return $transactionData;
+    }
+
     /**
      * Find a transaction by ID
      *
@@ -286,6 +370,7 @@ class TransactionRepository
     public function findTransaction(int $id): ?Transaction
     {
         return Transaction::with(['client', 'companyProfile', 'payment', 'salesTransactions'])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->find($id);
     }
 
@@ -298,6 +383,7 @@ class TransactionRepository
     public function findTransactionByUuid(string $uuid): ?Transaction
     {
         return Transaction::with(['client', 'companyProfile', 'payment', 'salesTransactions'])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->where('uuid', $uuid)
                          ->first();
     }
@@ -312,7 +398,8 @@ class TransactionRepository
     {
         try {
             // Find the transaction to delete
-            $transaction = Transaction::findOrFail($id);
+            $transaction = Transaction::where('company_profile_id', CurrentCompany::id())
+                ->findOrFail($id);
 
             // Delete the transaction
             $transaction->delete();
@@ -339,7 +426,8 @@ class TransactionRepository
     {
         try {
             // Find the sales transaction
-            $salesTransaction = Transaction::findOrFail($salesTransactionId);
+            $salesTransaction = Transaction::where('company_profile_id', CurrentCompany::id())
+                ->findOrFail($salesTransactionId);
 
             // Update payment status
             $salesTransaction->paid = true;
@@ -367,6 +455,7 @@ class TransactionRepository
     public function getTotalSalesAmount(string $startDate, string $endDate): float
     {
         return Transaction::sales()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->whereBetween('transaction_date', [$startDate, $endDate])
                          ->sum('total_amount') ?? 0;
     }
@@ -381,6 +470,7 @@ class TransactionRepository
     public function getTotalPaymentsAmount(string $startDate, string $endDate): float
     {
         return Transaction::payments()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->whereBetween('transaction_date', [$startDate, $endDate])
                          ->sum('total_amount') ?? 0;
     }
@@ -393,6 +483,7 @@ class TransactionRepository
     public function getOutstandingAmount(): float
     {
         return Transaction::unpaidSales()
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->sum('total_amount') ?? 0;
     }
 
@@ -405,8 +496,9 @@ class TransactionRepository
     public function getFilteredPayments(array $filters = []): Collection
     {
         $query = Transaction::where('transaction_type', 'payment')
+                           ->where('company_profile_id', CurrentCompany::id())
                            ->with(['client', 'companyProfile'])
-                           ->orderBy('transaction_date', 'desc');
+                           ->orderBy('created_at', 'desc');
 
         // Filter by client
         if (!empty($filters['client_id'])) {
@@ -431,6 +523,27 @@ class TransactionRepository
     }
 
     /**
+     * Get payment transactions that can be linked to a sale.
+     */
+    public function getAvailablePaymentsForSaleSelection(?int $currentSaleId = null): Collection
+    {
+        $query = Transaction::payments()
+            ->where('company_profile_id', CurrentCompany::id())
+            ->with('client')
+            ->orderBy('created_at', 'desc');
+
+        if ($currentSaleId === null) {
+            $query->whereDoesntHave('salesTransactions');
+        } else {
+            $query->whereDoesntHave('salesTransactions', function ($salesQuery) use ($currentSaleId) {
+                $salesQuery->where('id', '!=', $currentSaleId);
+            });
+        }
+
+        return $query->get();
+    }
+
+    /**
      * Store a new payment transaction
      *
      * @param array $paymentData
@@ -441,7 +554,7 @@ class TransactionRepository
         try {
             // Create a new transaction for payment
             $transaction = new Transaction();
-            $transaction->company_profile_id = session('company_profile.id');
+            $transaction->company_profile_id = CurrentCompany::id();
             $transaction->transaction_type = 'payment';
             $transaction->fill($paymentData);
 
@@ -474,6 +587,7 @@ class TransactionRepository
         try {
             // Find the payment transaction to update
             $transaction = Transaction::where('id', $id)
+                                   ->where('company_profile_id', CurrentCompany::id())
                                    ->where('transaction_type', 'payment')
                                    ->firstOrFail();
 
@@ -504,6 +618,7 @@ class TransactionRepository
     public function findPaymentTransaction(int $id): ?Transaction
     {
         return Transaction::with(['client', 'companyProfile'])
+                         ->where('company_profile_id', CurrentCompany::id())
                          ->where('transaction_type', 'payment')
                          ->find($id);
     }
@@ -519,6 +634,7 @@ class TransactionRepository
         try {
             // Find the payment transaction to delete
             $transaction = Transaction::where('id', $id)
+                                   ->where('company_profile_id', CurrentCompany::id())
                                    ->where('transaction_type', 'payment')
                                    ->firstOrFail();
 

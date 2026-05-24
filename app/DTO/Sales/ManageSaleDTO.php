@@ -2,9 +2,11 @@
 
 namespace App\DTO\Sales;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ErrorData;
 use Illuminate\Support\Facades\Validator;
 use App\DTO\BaseDTOInterface;
+use Illuminate\Validation\Rule;
 
 class ManageSaleDTO implements BaseDTOInterface
 {
@@ -109,7 +111,15 @@ class ManageSaleDTO implements BaseDTOInterface
             'tds_rate' => 'nullable|numeric|min:0|max:100',
             'due_date' => 'nullable|date|after_or_equal:sale_date',
             'paid' => 'required|boolean',
-            'payment_id' => 'nullable|integer|exists:payments,id',
+            'payment_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('transactions', 'id')->where(function ($query) {
+                    $query->where('company_profile_id', CurrentCompany::id())
+                        ->where('transaction_type', 'payment')
+                        ->where('client_id', $this->clientId);
+                }),
+            ],
             'notes' => 'nullable|string|max:1000',
         ];
     }

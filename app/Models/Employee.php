@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Employee extends Model
 {
@@ -23,6 +23,7 @@ class Employee extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'company_profile_id',
         'first_name',
         'last_name',
         'gender',
@@ -44,12 +45,21 @@ class Employee extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'company_profile_id' => 'integer',
         'joining_date' => 'date',
         'leaving_date' => 'date',
         'salary' => 'integer',
         'salary_hours' => 'integer',
         'advance_due' => 'decimal:2',
     ];
+
+    /**
+     * Get the company profile that owns the employee.
+     */
+    public function companyProfile(): BelongsTo
+    {
+        return $this->belongsTo(CompanyProfile::class);
+    }
 
     /**
      * Get the employee's full name.
@@ -123,6 +133,14 @@ class Employee extends Model
     public function scopeByDepartment($query, $department)
     {
         return $query->where('department', $department);
+    }
+
+    /**
+     * Scope a query to a specific company.
+     */
+    public function scopeForCompany($query, int $companyProfileId)
+    {
+        return $query->where('company_profile_id', $companyProfileId);
     }
 
     /**

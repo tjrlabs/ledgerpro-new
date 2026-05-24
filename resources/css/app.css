@@ -6,13 +6,481 @@
 
 @theme {
     --default-ring-width: 3px;
-    --default-ring-color: var(--color-blue-500);
+    --default-ring-color: var(--color-violet-500);
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        color-scheme: dark;
+    }
+
+    body {
+        min-height: 100vh;
+        color: #f5f3ff;
+        background:
+            linear-gradient(rgba(168, 85, 247, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(168, 85, 247, 0.08) 1px, transparent 1px),
+            radial-gradient(circle at top left, rgba(147, 51, 234, 0.22), transparent 32rem),
+            radial-gradient(circle at bottom right, rgba(88, 28, 135, 0.28), transparent 30rem),
+            linear-gradient(135deg, #020006 0%, #090112 45%, #13051f 100%);
+        background-size: 32px 32px, 32px 32px, auto;
+    }
+
+    label {
+        @apply text-sm font-semibold tracking-tight text-violet-100;
+    }
+
+    input,
+    select,
+    textarea {
+        @apply border-violet-500/25 bg-black/50 text-violet-50 shadow-sm shadow-black/30 transition placeholder:text-violet-300/45 focus:border-violet-400 focus:ring-4 focus:ring-violet-500/20;
+    }
+}
+
+@layer components {
+    .page-section {
+        @apply rounded-lg border border-violet-500/20 bg-black/45 p-6 shadow-sm shadow-black/50 backdrop-blur-xl;
+    }
+
+    .page-shell {
+        @apply overflow-hidden rounded-lg border border-violet-500/20 bg-[#08030f]/92 shadow-[0_28px_90px_-44px_rgba(88,28,135,0.65)] backdrop-blur-xl;
+    }
+
+    .page-inner {
+        @apply p-5 text-violet-50 sm:p-6 lg:p-8;
+    }
+
+    .page-header {
+        @apply mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between;
+    }
+
+    .page-title {
+        @apply text-3xl font-black tracking-tight text-white;
+    }
+
+    .page-subtitle {
+        @apply mt-2 text-sm leading-6 text-violet-200/70;
+    }
+
+    .surface-muted {
+        @apply rounded-lg border border-violet-500/20 bg-violet-950/20 p-4 shadow-inner shadow-black/60;
+    }
+
+    .stat-card {
+        @apply rounded-lg border border-violet-500/20 bg-black/40 p-4 shadow-sm shadow-black/50;
+    }
+
+    .stat-icon {
+        @apply flex h-11 w-11 items-center justify-center rounded-lg bg-violet-600 text-white shadow-sm shadow-violet-950/70;
+    }
+
+    .app-table-wrap {
+        @apply overflow-x-auto rounded-lg border border-violet-500/20 bg-black/45 shadow-sm shadow-black/50;
+    }
+
+    .app-table {
+        @apply min-w-full divide-y divide-violet-500/15;
+    }
+
+    .app-table thead {
+        @apply bg-violet-950/70;
+    }
+
+    .app-table thead th {
+        @apply px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-violet-100;
+    }
+
+    .app-table tbody {
+        @apply divide-y divide-violet-500/10 bg-black/30;
+    }
+
+    .app-table tbody tr {
+        @apply transition hover:bg-violet-500/10;
+    }
+
+    .app-table tbody tr.sales-row-paid {
+        background-color: rgba(100,200,100, 0.5)
+    }
+
+    .app-table tbody tr.sales-row-paid:hover {
+        background-color: rgba(100,200,100, 0.6)
+    }
+
+    .app-table tbody td {
+        @apply px-5 py-4 text-sm text-violet-100/85;
+    }
+
+    .payments-board-table-wrap {
+        @apply rounded-b-lg;
+    }
+
+    .payments-board-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(14px);
+        box-shadow: inset 0 -1px 0 rgb(139 92 246 / 0.2);
+    }
+
+    .payments-board-table thead th:not(:last-child),
+    .payments-board-table tbody td:not(:last-child),
+    .payments-board-table tfoot td:not(:last-child) {
+        border-right: 1px solid rgb(167 139 250 / 0.34);
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-violet-950/60 transition hover:-translate-y-0.5 hover:bg-violet-500 hover:shadow-md focus:outline-hidden focus:ring-4 focus:ring-violet-500/25 focus:ring-offset-2 focus:ring-offset-black;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-violet-500/25 bg-black/45 px-4 py-2.5 text-sm font-semibold text-violet-100 shadow-sm shadow-black/30 transition hover:-translate-y-0.5 hover:border-violet-400/60 hover:bg-violet-500/15 hover:text-white hover:shadow-md focus:outline-hidden focus:ring-4 focus:ring-violet-500/25 focus:ring-offset-2 focus:ring-offset-black;
+    }
+
+    .btn-accent {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-fuchsia-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-fuchsia-950/70 transition hover:-translate-y-0.5 hover:bg-fuchsia-400 hover:shadow-md focus:outline-hidden focus:ring-4 focus:ring-fuchsia-500/25 focus:ring-offset-2 focus:ring-offset-black;
+    }
+
+    .btn-success {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-purple-950/70 transition hover:-translate-y-0.5 hover:bg-purple-500 hover:shadow-md focus:outline-hidden focus:ring-4 focus:ring-purple-500/20 focus:ring-offset-2 focus:ring-offset-black;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-rose-950/70 transition hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow-md focus:outline-hidden focus:ring-4 focus:ring-rose-500/20 focus:ring-offset-2 focus:ring-offset-black;
+    }
+
+    .btn-soft {
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-violet-500/25 bg-violet-950/20 px-3 py-2 text-sm font-semibold text-violet-100 transition hover:border-violet-400/60 hover:bg-violet-500/15 hover:text-white;
+    }
+
+    .btn-soft-danger {
+        @apply inline-flex items-center justify-center gap-2 rounded-md border border-rose-400/25 bg-rose-950/20 px-3 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/15 hover:text-rose-100;
+    }
+
+    .badge {
+        @apply inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset;
+    }
+
+    .badge-neutral {
+        @apply bg-violet-500/10 text-violet-100 ring-violet-400/25;
+    }
+
+    .badge-success {
+        @apply bg-purple-500/10 text-purple-100 ring-purple-400/25;
+    }
+
+    .badge-danger {
+        @apply bg-rose-500/10 text-rose-200 ring-rose-400/25;
+    }
+
+    .badge-info {
+        @apply bg-violet-500/15 text-violet-100 ring-violet-400/30;
+    }
+
+    .badge-warning {
+        @apply bg-fuchsia-500/10 text-fuchsia-100 ring-fuchsia-400/25;
+    }
+
+    .alert-success {
+        @apply flex items-center justify-between gap-4 rounded-lg border border-purple-400/25 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-100 shadow-sm shadow-black/30;
+    }
+
+    .alert-error {
+        @apply rounded-lg border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-100 shadow-sm shadow-black/30;
+    }
+
+    .app-field {
+        @apply rounded-lg border border-violet-500/25 bg-black/45 shadow-sm shadow-black/30 transition focus-within:border-violet-400 focus-within:ring-4 focus-within:ring-violet-500/20;
+    }
+
+    .app-nav-link {
+        @apply flex items-center rounded-lg px-3 py-2.5 text-sm font-semibold transition;
+    }
+
+    .app-nav-link-active {
+        @apply bg-violet-600 text-white shadow-md shadow-violet-950/70;
+    }
+
+    .app-nav-link-idle {
+        @apply text-violet-100/70 hover:bg-violet-500/10 hover:text-white;
+    }
+}
+
+body .bg-white,
+body .bg-gray-50,
+body .bg-gray-100,
+body .bg-slate-50,
+body .bg-stone-50 {
+    background-color: rgb(8 3 15 / var(--tw-bg-opacity, 1));
+}
+
+body .bg-white\/70,
+body .bg-white\/80,
+body .bg-white\/90 {
+    background-color: rgb(8 3 15 / 0.88);
+}
+
+body .text-gray-900,
+body .text-gray-800,
+body .text-gray-700,
+body .text-slate-950,
+body .text-slate-900,
+body .text-stone-900 {
+    color: #f5f3ff;
+}
+
+body .text-gray-600,
+body .text-gray-500,
+body .text-slate-700,
+body .text-slate-600,
+body .text-slate-500,
+body .text-stone-700,
+body .text-stone-600,
+body .text-stone-500 {
+    color: rgb(221 214 254 / 0.78);
+}
+
+body .border-gray-200,
+body .border-gray-300,
+body .border-slate-200,
+body .border-stone-200 {
+    border-color: rgb(139 92 246 / 0.24);
+}
+
+body .border-white {
+    border-color: rgb(139 92 246 / 0.18);
+}
+
+body .hover\:bg-gray-50:hover,
+body .hover\:bg-gray-100:hover,
+body .hover\:bg-slate-50:hover,
+body .hover\:bg-stone-50:hover {
+    background-color: rgb(91 33 182 / 0.16);
+}
+
+body .hover\:bg-gray-200:hover,
+body .hover\:bg-gray-300:hover {
+    background-color: rgb(109 40 217 / 0.2);
+}
+
+body .focus\:border-blue-500:focus,
+body .focus\:border-blue-600:focus {
+    border-color: rgb(167 139 250 / 0.7);
+}
+
+body .focus\:ring-blue-200\/50:focus,
+body .focus\:ring-blue-500:focus,
+body .focus\:ring-blue-500\/50:focus,
+body .focus\:ring-2:focus {
+    --tw-ring-color: rgb(139 92 246 / 0.24);
+}
+
+body .focus\:outline-hidden:focus,
+body .focus\:outline-none:focus {
+    outline-color: rgb(167 139 250 / 0.7);
+}
+
+body .bg-green-50,
+body .bg-green-100,
+body .bg-emerald-50,
+body .bg-emerald-100 {
+    background-color: rgb(88 28 135 / 0.22);
+}
+
+body .text-green-600,
+body .text-green-700,
+body .text-green-800,
+body .text-emerald-600,
+body .text-emerald-700,
+body .text-emerald-800 {
+    color: rgb(216 180 254);
 }
 
 .invalid-feedback{
-    color: #dd0000;
+    color: #dc2626;
     font-size:13px;
 }
 div.is-invalid {
-    border: 1px solid #dd0000;
+    border: 1px solid #dc2626;
+}
+
+body .ui-datepicker {
+    width: 20rem;
+    padding: 0.75rem;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 1rem;
+    background: rgba(8, 3, 15, 0.96);
+    color: #f5f3ff;
+    box-shadow: 0 28px 70px -36px rgba(88, 28, 135, 0.8);
+    backdrop-filter: blur(18px);
+}
+
+body .ui-datepicker .ui-datepicker-header {
+    border: 1px solid rgba(139, 92, 246, 0.22);
+    border-radius: 0.75rem;
+    background: rgba(91, 33, 182, 0.28);
+    color: #ffffff;
+}
+
+body .ui-datepicker .ui-datepicker-prev,
+body .ui-datepicker .ui-datepicker-next {
+    top: 0.45rem;
+    border-radius: 9999px;
+    transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+body .ui-datepicker .ui-datepicker-prev-hover,
+body .ui-datepicker .ui-datepicker-next-hover,
+body .ui-datepicker .ui-datepicker-prev:focus,
+body .ui-datepicker .ui-datepicker-next:focus {
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    background: rgba(139, 92, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+body .ui-datepicker .ui-datepicker-prev span,
+body .ui-datepicker .ui-datepicker-next span {
+    filter: invert(1) hue-rotate(210deg) brightness(1.8);
+}
+
+body .ui-datepicker .ui-datepicker-title {
+    color: #ffffff;
+}
+
+body .ui-datepicker .ui-datepicker-title select {
+    margin: 0 0.2rem;
+    border: 1px solid rgba(139, 92, 246, 0.28);
+    border-radius: 0.5rem;
+    background: rgba(8, 3, 15, 0.9);
+    color: #f5f3ff;
+}
+
+body .ui-datepicker table {
+    margin-top: 0.6rem;
+}
+
+body .ui-datepicker th {
+    padding: 0.45rem 0.2rem;
+    color: rgba(221, 214, 254, 0.72);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+}
+
+body .ui-datepicker td {
+    padding: 0.15rem;
+}
+
+body .ui-datepicker td span,
+body .ui-datepicker td a {
+    border: 1px solid transparent;
+    border-radius: 0.7rem;
+    background: transparent;
+    color: rgba(245, 243, 255, 0.88);
+    text-align: center;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+body .ui-datepicker td a:hover,
+body .ui-datepicker td a:focus {
+    border-color: rgba(167, 139, 250, 0.34);
+    background: rgba(139, 92, 246, 0.16);
+    color: #ffffff;
+}
+
+body .ui-datepicker .ui-state-default,
+body .ui-datepicker .ui-widget-content .ui-state-default,
+body .ui-datepicker .ui-widget-header .ui-state-default {
+    border: 1px solid transparent;
+    background: transparent;
+    color: rgba(245, 243, 255, 0.88);
+}
+
+body .ui-datepicker .ui-state-highlight,
+body .ui-datepicker .ui-widget-content .ui-state-highlight,
+body .ui-datepicker .ui-widget-header .ui-state-highlight {
+    border-color: rgba(244, 114, 182, 0.3);
+    background: rgba(192, 38, 211, 0.18);
+    color: #ffffff;
+}
+
+body .ui-datepicker .ui-state-active,
+body .ui-datepicker .ui-widget-content .ui-state-active,
+body .ui-datepicker .ui-widget-header .ui-state-active {
+    border-color: rgba(167, 139, 250, 0.46);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.7), rgba(192, 38, 211, 0.65));
+    color: #ffffff;
+    box-shadow: 0 10px 22px -12px rgba(139, 92, 246, 0.9);
+}
+
+body .ui-datepicker .ui-state-disabled,
+body .ui-datepicker .ui-widget-content .ui-state-disabled,
+body .ui-datepicker .ui-widget-header .ui-state-disabled {
+    opacity: 0.35;
+}
+
+body .ui-datepicker .ui-datepicker-buttonpane {
+    border-top: 1px solid rgba(139, 92, 246, 0.18);
+    background: transparent;
+}
+
+body .ui-datepicker .ui-priority-secondary {
+    color: rgba(221, 214, 254, 0.72);
+}
+
+body select,
+body select option,
+body select optgroup {
+    background-color: rgb(8 3 15 / 0.96);
+    color: #f5f3ff;
+}
+
+body input[type="date"],
+body input[type="datetime-local"],
+body input[type="month"],
+body input[type="week"] {
+    color-scheme: dark;
+}
+
+body input[type="date"]::-webkit-calendar-picker-indicator,
+body input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+body input[type="month"]::-webkit-calendar-picker-indicator,
+body input[type="week"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) hue-rotate(210deg) brightness(1.35);
+    opacity: 0.9;
+}
+
+body textarea {
+    background-color: rgba(8, 3, 15, 0.92) !important;
+    color: #f5f3ff !important;
+    border-color: rgb(139 92 246 / 0.24) !important;
+}
+
+body textarea::placeholder {
+    color: rgb(196 181 253 / 0.5) !important;
+}
+
+body textarea:focus {
+    border-color: rgb(167 139 250 / 0.7) !important;
+    --tw-ring-color: rgb(139 92 246 / 0.24);
+}
+
+body .app-field textarea,
+body textarea.bg-transparent {
+    background-color: transparent !important;
+}
+
+body input:-webkit-autofill,
+body input:-webkit-autofill:hover,
+body input:-webkit-autofill:focus,
+body textarea:-webkit-autofill,
+body textarea:-webkit-autofill:hover,
+body textarea:-webkit-autofill:focus,
+body select:-webkit-autofill,
+body select:-webkit-autofill:hover,
+body select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #f5f3ff;
+    -webkit-box-shadow: 0 0 0 1000px rgba(8, 3, 15, 0.96) inset;
+    transition: background-color 9999s ease-in-out 0s;
 }

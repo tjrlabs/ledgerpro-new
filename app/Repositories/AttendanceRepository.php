@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -30,7 +31,7 @@ class AttendanceRepository
      */
     public function getAllAttendances(array $filters = []): Collection
     {
-        $query = Attendance::query();
+        $query = Attendance::forCompany(CurrentCompany::id());
 
         // Filter by year
         if (isset($filters['year']) && !empty($filters['year'])) {
@@ -64,6 +65,7 @@ class AttendanceRepository
 
             // Create the main attendance record
             $attendance = Attendance::create([
+                'company_profile_id' => CurrentCompany::id(),
                 'attendance_month_year' => $attendanceDTO->attendanceMonthYear,
                 'start_date' => Carbon::create($attendanceDTO->attendanceYear, $attendanceDTO->attendanceMonth, 1, '00', '00', '00')->startOfMonth()->toDateTimeString(),
                 'end_date' => Carbon::create($attendanceDTO->attendanceYear, $attendanceDTO->attendanceMonth, 1, '23', '59', '59')->endOfMonth()->toDateTimeString(),
@@ -95,7 +97,9 @@ class AttendanceRepository
      */
     public function findByPeriod(string $period): ?Attendance
     {
-        return Attendance::where('attendance_month_year', $period)->first();
+        return Attendance::forCompany(CurrentCompany::id())
+            ->where('attendance_month_year', $period)
+            ->first();
     }
 
     /**
@@ -106,7 +110,7 @@ class AttendanceRepository
      */
     public function findById(int $id): ?Attendance
     {
-        return Attendance::find($id);
+        return Attendance::forCompany(CurrentCompany::id())->find($id);
     }
 
     /**
@@ -153,7 +157,9 @@ class AttendanceRepository
             }
 
             // Delete associated employee attendance board records
-            EmployeeAttendanceboard::where('attendance_id', $id)->delete();
+            EmployeeAttendanceboard::where('attendance_id', $id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->delete();
 
             // Delete the main attendance record
             $attendance->delete();
@@ -179,6 +185,7 @@ class AttendanceRepository
     public function getEmployeeAttendanceByPeriod(int $attendanceId): Collection
     {
         return EmployeeAttendanceboard::with('employee')
+            ->forCompany(CurrentCompany::id())
             ->where('attendance_id', $attendanceId)
             ->orderBy('employee_id')
             ->get();
@@ -195,12 +202,15 @@ class AttendanceRepository
         try {
             // Check if employee is already in the attendance board
             $existingRecord = EmployeeAttendanceboard::where('attendance_id', $employeeAttendanceData['attendance_id'])
+                ->where('company_profile_id', CurrentCompany::id())
                 ->where('employee_id', $employeeAttendanceData['employee_id'])
                 ->first();
 
             if ($existingRecord) {
                 return new ErrorData(['Employee is already in the attendance board']);
             }
+
+            $employeeAttendanceData['company_profile_id'] = CurrentCompany::id();
 
             // Create the employee attendance record
             $employeeAttendance = EmployeeAttendanceboard::create($employeeAttendanceData);
@@ -281,6 +291,7 @@ class AttendanceRepository
         try {
             // Find the employee attendance record
             $employeeAttendance = EmployeeAttendanceboard::where('id', $employeeData['id'])
+                ->where('company_profile_id', CurrentCompany::id())
                 ->where('attendance_id', $attendanceId)
                 ->first();
 
@@ -332,7 +343,9 @@ class AttendanceRepository
     public function updateAttendanceSummary(Attendance $attendance): void
     {
         try {
-            $employeeAttendanceRecords = EmployeeAttendanceboard::where('attendance_id', $attendance->id)->get();
+            $employeeAttendanceRecords = EmployeeAttendanceboard::where('attendance_id', $attendance->id)
+                ->where('company_profile_id', CurrentCompany::id())
+                ->get();
 
             $totalSalaryPaid = $employeeAttendanceRecords->sum('total_salary');
             $totalAdvancePaid = $employeeAttendanceRecords->sum('advance_deducted');
@@ -361,6 +374,7 @@ class AttendanceRepository
     public function getAvailablePeriods(): Collection
     {
         return Attendance::select('attendance_month_year')
+            ->forCompany(CurrentCompany::id())
             ->distinct()
             ->orderBy('attendance_month_year', 'desc')
             ->pluck('attendance_month_year');

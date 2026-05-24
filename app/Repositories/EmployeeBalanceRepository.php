@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -109,7 +110,7 @@ class EmployeeBalanceRepository
     ): ResponseData {
         try {
             // Check if employee exists
-            $employee = Employee::find($employeeId);
+            $employee = Employee::forCompany($companyProfileId)->find($employeeId);
             if (!$employee) {
                 return new ErrorData(['message' => 'Employee not found!']);
             }
@@ -164,7 +165,13 @@ class EmployeeBalanceRepository
     public function deleteEmployeeBalance(int $employeeBalanceId): ResponseData
     {
         try {
-            $employeeBalance = EmployeeBalance::with(['employee'])->find($employeeBalanceId);
+            $query = EmployeeBalance::with(['employee']);
+
+            if (CurrentCompany::id()) {
+                $query->where('company_profile_id', CurrentCompany::id());
+            }
+
+            $employeeBalance = $query->find($employeeBalanceId);
 
             if (!$employeeBalance) {
                 return new ErrorData(['message' => 'Employee Balance Not found']);

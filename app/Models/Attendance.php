@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attendance extends Model
@@ -23,6 +24,7 @@ class Attendance extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'company_profile_id',
         'attendance_month_year',
         'start_date',
         'end_date',
@@ -43,6 +45,7 @@ class Attendance extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'company_profile_id' => 'integer',
         'total_days' => 'integer',
         'working_days' => 'integer',
         'employee_count' => 'integer',
@@ -53,6 +56,14 @@ class Attendance extends Model
         'previous_balance_adjusted' => 'decimal:2',
         'balance_carry_forward' => 'decimal:2',
     ];
+
+    /**
+     * Get the company profile that owns this attendance period.
+     */
+    public function companyProfile(): BelongsTo
+    {
+        return $this->belongsTo(CompanyProfile::class);
+    }
 
     /**
      * Get the employee attendance boards for this attendance period.
@@ -68,6 +79,14 @@ class Attendance extends Model
     public function scopeForPeriod($query, $monthYear)
     {
         return $query->where('attendance_month_year', $monthYear);
+    }
+
+    /**
+     * Scope to filter by company.
+     */
+    public function scopeForCompany($query, int $companyProfileId)
+    {
+        return $query->where('company_profile_id', $companyProfileId);
     }
 
     /**

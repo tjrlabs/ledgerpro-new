@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -9,6 +10,7 @@ use App\Models\Reports\ClientsPayments;
 use App\Models\Reports\PaymentsBoard;
 use App\Models\Client;
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -27,7 +29,8 @@ class ClientsPaymentsRepository
      */
     public function getAllClientPayments(array $filters = []): Collection
     {
-        $query = ClientsPayments::with(['client', 'paymentsBoard']);
+        $query = ClientsPayments::with(['client', 'paymentsBoard'])
+            ->forCompany(CurrentCompany::id());
 
         // Filter by payments board
         if (isset($filters['payments_board_id']) && !empty($filters['payments_board_id'])) {
@@ -79,6 +82,7 @@ class ClientsPaymentsRepository
     {
         try {
             // Create a new client payment
+            $paymentData['company_profile_id'] = CurrentCompany::id();
             $clientPayment = ClientsPayments::create($paymentData);
 
             // Return success response with the created payment
@@ -105,7 +109,7 @@ class ClientsPaymentsRepository
             $createdPayments = [];
 
             // Get the payments board to extract month and year
-            $paymentsBoard = PaymentsBoard::find($boardId);
+            $paymentsBoard = PaymentsBoard::forCompany(CurrentCompany::id())->find($boardId);
             if (!$paymentsBoard) {
                 return new ErrorData(['Payments board not found']);
             }
@@ -120,6 +124,7 @@ class ClientsPaymentsRepository
 
                 // Check if client payment already exists for this board
                 $existingPayment = ClientsPayments::where('payments_board_id', $boardId)
+                    ->where('company_profile_id', CurrentCompany::id())
                     ->where('client_id', $clientId)
                     ->first();
 
@@ -128,6 +133,7 @@ class ClientsPaymentsRepository
                     $transactionAmounts = $this->calculateClientTransactionAmounts($clientId, $startDate, $endDate);
 
                     $paymentData = [
+                        'company_profile_id' => CurrentCompany::id(),
                         'payments_board_id' => $boardId,
                         'client_id' => $clientId,
                         'cash_sales' => $transactionAmounts['cash_sales'],
@@ -169,7 +175,9 @@ class ClientsPaymentsRepository
      */
     public function findClientPayment(int $id): ?ClientsPayments
     {
-        return ClientsPayments::with(['client', 'paymentsBoard'])->find($id);
+        return ClientsPayments::with(['client', 'paymentsBoard'])
+            ->forCompany(CurrentCompany::id())
+            ->find($id);
     }
 
     /**
@@ -182,7 +190,7 @@ class ClientsPaymentsRepository
     public function updateClientPayment(int $id, array $paymentData): ResponseData
     {
         try {
-            $clientPayment = ClientsPayments::find($id);
+            $clientPayment = ClientsPayments::forCompany(CurrentCompany::id())->find($id);
 
             if (!$clientPayment) {
                 return new ErrorData(['Client payment not found']);
@@ -211,7 +219,7 @@ class ClientsPaymentsRepository
     public function deleteClientPayment(int $id): ResponseData
     {
         try {
-            $clientPayment = ClientsPayments::find($id);
+            $clientPayment = ClientsPayments::forCompany(CurrentCompany::id())->find($id);
 
             if (!$clientPayment) {
                 return new ErrorData(['Client payment not found']);
@@ -238,9 +246,11 @@ class ClientsPaymentsRepository
     public function getPaymentsByBoard(int $boardId): Collection
     {
         return ClientsPayments::with(['client', 'paymentsBoard'])
+            ->forCompany(CurrentCompany::id())
             ->forBoard($boardId)
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->sortBy(fn (ClientsPayments $clientPayment) => mb_strtolower($clientPayment->client?->client_name ?? ''))
+            ->values();
     }
 
     /**
@@ -252,6 +262,7 @@ class ClientsPaymentsRepository
     public function getPaymentsByClient(int $clientId): Collection
     {
         return ClientsPayments::with(['client', 'paymentsBoard'])
+            ->forCompany(CurrentCompany::id())
             ->forClient($clientId)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -265,18 +276,20 @@ class ClientsPaymentsRepository
      */
     public function calculateBoardTotals(int $boardId): array
     {
-        $payments = ClientsPayments::forBoard($boardId)->get();
+        $payments = ClientsPayments::forCompany(CurrentCompany::id())
+            ->forBoard($boardId)
+            ->get();
 
         return [
             'total_cash_sales' => $payments->sum('cash_sales'),
             'total_pre_gst_amount' => $payments->sum('pre_gst_amount'),
             'total_gst_amount' => $payments->sum('gst_amount'),
             'total_tds' => $payments->sum('tds'),
-            'total_subtotal_amount' => $payments->sum('subtotal_amount'),
+            'total_net_amount' => $payments->sum('subtotal_amount'),
             'total_previous_balance' => $payments->sum('previous_balance'),
             'total_amount' => $payments->sum('total_amount'),
             'total_paid_amount' => $payments->sum('paid_amount'),
-            'total_outstanding' => $payments->sum(function ($payment) {
+            'total_unpaid_amount' => $payments->sum(function ($payment) {
                 return $payment->outstanding_amount;
             }),
             'clients_count' => $payments->count(),
@@ -291,7 +304,9 @@ class ClientsPaymentsRepository
      */
     public function getOutstandingPayments(?int $boardId = null): Collection
     {
-        $query = ClientsPayments::with(['client', 'paymentsBoard'])->withOutstanding();
+        $query = ClientsPayments::with(['client', 'paymentsBoard'])
+            ->forCompany(CurrentCompany::id())
+            ->withOutstanding();
 
         if ($boardId) {
             $query->forBoard($boardId);
@@ -311,6 +326,7 @@ class ClientsPaymentsRepository
     {
         try {
             $clientPayment = ClientsPayments::where('payments_board_id', $boardId)
+                ->where('company_profile_id', CurrentCompany::id())
                 ->where('client_id', $clientId)
                 ->first();
 
@@ -341,6 +357,7 @@ class ClientsPaymentsRepository
     {
         // Get client IDs already added to this payments board
         $clientsAlreadyInBoard = ClientsPayments::where('payments_board_id', $boardId)
+            ->where('company_profile_id', $companyProfileId)
             ->pluck('client_id')
             ->toArray();
 
@@ -362,19 +379,23 @@ class ClientsPaymentsRepository
      */
     private function calculateClientTransactionAmounts(int $clientId, $startDate, $endDate): array
     {
+        [$paymentWindowStart, $paymentWindowEnd] = $this->getPaymentWindow($startDate, $endDate);
+
         // Import Transaction model
         $transactionModel = new \App\Models\Transaction();
 
         // Get all sales transactions for this client in the date range
         $salesTransactions = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'sale')
             ->whereBetween('transaction_date', [$startDate, $endDate])
             ->get();
 
         // Get all payment transactions for this client in the date range
         $paymentTransactions = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'payment')
-            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->whereBetween('transaction_date', [$paymentWindowStart, $paymentWindowEnd])
             ->get();
 
         // Calculate cash sales (transactions with sales_type = 'cash')
@@ -400,6 +421,7 @@ class ClientsPaymentsRepository
         // Calculate previous balance (this would need to be calculated from transactions before the start date)
         // For now, we'll calculate unpaid sales from before this period
         $previousBalance = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'sale')
             ->where('transaction_date', '<', $startDate)
             ->where('paid', false)
@@ -407,6 +429,7 @@ class ClientsPaymentsRepository
 
         // Subtract any payments made before this period for those previous sales
         $previousPayments = $transactionModel::where('client_id', $clientId)
+            ->where('company_profile_id', CurrentCompany::id())
             ->where('transaction_type', 'payment')
             ->where('transaction_date', '<', $startDate)
             ->sum('total_amount');
@@ -428,6 +451,14 @@ class ClientsPaymentsRepository
         ];
     }
 
+    private function getPaymentWindow($startDate, $endDate): array
+    {
+        $paymentWindowStart = Carbon::parse($endDate)->addDay()->startOfDay();
+        $paymentWindowEnd = Carbon::parse($endDate)->addMonthNoOverflow()->endOfMonth();
+
+        return [$paymentWindowStart, $paymentWindowEnd];
+    }
+
     /**
      * Update payments board totals based on aggregated client payments data
      *
@@ -438,7 +469,7 @@ class ClientsPaymentsRepository
     {
         try {
             // Get the payments board
-            $paymentsBoard = PaymentsBoard::find($boardId);
+            $paymentsBoard = PaymentsBoard::forCompany(CurrentCompany::id())->find($boardId);
             if (!$paymentsBoard) {
                 Log::warning("Payments board not found when trying to update totals: {$boardId}");
                 return;
@@ -453,11 +484,11 @@ class ClientsPaymentsRepository
                 'total_pre_gst_amount' => $totals['total_pre_gst_amount'],
                 'total_gst_amount' => $totals['total_gst_amount'],
                 'total_tds' => $totals['total_tds'],
-                'total_subtotal_amount' => $totals['total_subtotal_amount'],
+                'total_net_amount' => $totals['total_net_amount'],
                 'total_previous_balance' => $totals['total_previous_balance'],
                 'total_amount' => $totals['total_amount'],
                 'total_paid_amount' => $totals['total_paid_amount'],
-                'total_outstanding' => $totals['total_outstanding'],
+                'total_unpaid_amount' => $totals['total_unpaid_amount'],
                 'clients_count' => $totals['clients_count'],
                 'updated_at' => now(),
             ]);

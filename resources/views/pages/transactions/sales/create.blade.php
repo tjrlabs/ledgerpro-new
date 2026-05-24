@@ -1,20 +1,20 @@
 <x-layouts.app-layout>
     <div class="py-12">
         <div class="mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white/80 backdrop-blur-md overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
+            <div class="page-shell">
                 <div class="p-6">
                     <div class="mb-6">
-                        <a href="{{ route('sales.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg inline-flex items-center mb-4">
+                        <a href="{{ route('sales.index') }}" class="btn-secondary mb-4 inline-flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                             </svg>
                             Back to Sales
                         </a>
-                        <h1 class="text-2xl font-bold text-gray-900">{{ isset($isEditing) && $isEditing ? 'Edit Sale' : 'Create New Sale' }}</h1>
+                        <h1 class="text-2xl font-bold">{{ isset($isEditing) && $isEditing ? 'Edit Sale' : 'Create New Sale' }}</h1>
                     </div>
 
                     @if ($errors->any())
-                    <div class="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                    <div class="alert-error mb-4">
                         <h4 class="text-lg font-medium mb-2">Please correct the following errors:</h4>
                         <ul class="list-disc pl-5">
                             @foreach ($errors->all() as $error)
@@ -25,12 +25,17 @@
                     @endif
 
                     @if(isset($isEditing) && $isEditing)
-                        <form action="{{ route('sales.update', $sale->id) }}" method="POST" class="space-y-6 p-5 bg-white/70 backdrop-blur-sm rounded-lg shadow-inner border border-white" id="salesForm">
+                        <form action="{{ route('sales.update', $sale->id) }}" method="POST" class="surface-muted space-y-6" id="salesForm">
                         @method('PUT')
                     @else
-                        <form action="{{ route('sales.store') }}" method="POST" class="space-y-6 p-5 bg-white/70 backdrop-blur-sm rounded-lg shadow-inner border border-white" id="salesForm">
+                        <form action="{{ route('sales.store') }}" method="POST" class="surface-muted space-y-6" id="salesForm">
                     @endif
                         @csrf
+                        @php
+                            $selectedClientId = (string) old('client_id', isset($sale) ? $sale->client_id : '');
+                            $selectedPaymentId = (string) old('payment_id', isset($sale) ? $sale->payment_id : '');
+                            $initialPaymentOptions = $selectedClientId !== '' ? ($availablePaymentsByClient[$selectedClientId] ?? []) : [];
+                        @endphp
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Client Dropdown -->
@@ -137,7 +142,7 @@
                             <!-- Tax Amount (Read-only, calculated automatically) -->
                             <div>
                                 <x-forms.label for="tax_amount" value="Tax Amount" />
-                                <x-forms.input type="number" name="tax_amount" id="tax_amount" step="0.01" value="{{ old('tax_amount', isset($sale) ? $sale->tax_amount : '0.00') }}" readonly class="bg-gray-50">
+                                <x-forms.input type="number" name="tax_amount" id="tax_amount" step="0.01" value="{{ old('tax_amount', isset($sale) ? $sale->tax_amount : '0.00') }}" readonly class="bg-black/20">
                                     <x-slot name="afterIcon">
                                         <i class="fas fa-calculator text-gray-500"></i>
                                     </x-slot>
@@ -170,7 +175,7 @@
                             <!-- TDS Amount (Read-only, calculated automatically) -->
                             <div>
                                 <x-forms.label for="tds" value="TDS Amount" />
-                                <x-forms.input type="number" name="tds" id="tds" step="0.01" value="{{ old('tds', isset($sale) ? $sale->tds : '0.00') }}" readonly class="bg-gray-50">
+                                <x-forms.input type="number" name="tds" id="tds" step="0.01" value="{{ old('tds', isset($sale) ? $sale->tds : '0.00') }}" readonly class="bg-black/20">
                                     <x-slot name="afterIcon">
                                         <i class="fas fa-calculator text-gray-500"></i>
                                     </x-slot>
@@ -183,7 +188,7 @@
                             <!-- Total Amount (Read-only, calculated automatically) -->
                             <div>
                                 <x-forms.label for="total_amount" value="Total Amount" />
-                                <x-forms.input type="number" name="total_amount" id="total_amount" step="0.01" value="{{ old('total_amount', isset($sale) ? $sale->total_amount : '0.00') }}" readonly class="bg-gray-50 font-semibold">
+                                <x-forms.input type="number" name="total_amount" id="total_amount" step="0.01" value="{{ old('total_amount', isset($sale) ? $sale->total_amount : '0.00') }}" readonly class="bg-black/20 font-semibold">
                                     <x-slot name="afterIcon">
                                         <i class="fas fa-money-bill text-gray-500"></i>
                                     </x-slot>
@@ -212,12 +217,18 @@
 
                             <!-- Payment ID (optional, for linking to payment transaction) -->
                             <div>
-                                <x-forms.label for="payment_id" value="Payment ID (Optional)" />
-                                <x-forms.input type="number" name="payment_id" id="payment_id" value="{{ old('payment_id', isset($sale) ? $sale->payment_id : '') }}" placeholder="Enter Payment Transaction ID">
+                                <x-forms.label for="payment_id" value="Payment (Optional)" />
+                                <x-forms.select name="payment_id" id="payment_id" description="Shows unlinked payments for the selected client, plus the currently linked payment when editing.">
+                                    <option value="">No linked payment</option>
+                                    @foreach($initialPaymentOptions as $paymentOption)
+                                        <option value="{{ $paymentOption['id'] }}" {{ $selectedPaymentId === (string) $paymentOption['id'] ? 'selected' : '' }}>
+                                            {{ $paymentOption['label'] }}
+                                        </option>
+                                    @endforeach
                                     <x-slot name="afterIcon">
                                         <i class="fas fa-link text-gray-500"></i>
                                     </x-slot>
-                                </x-forms.input>
+                                </x-forms.select>
                                 @error('payment_id')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -235,10 +246,10 @@
 
                         <!-- Submit Button -->
                         <div class="flex items-center justify-end space-x-3">
-                            <a href="{{ route('sales.index') }}" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">
+                            <a href="{{ route('sales.index') }}" class="btn-secondary">
                                 Cancel
                             </a>
-                            <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center">
+                            <button type="submit" class="btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                 </svg>
@@ -258,6 +269,41 @@
 
     <script>
         jQuery(document).ready(function($) {
+            const availablePaymentsByClient = @json($availablePaymentsByClient);
+            const paymentSelect = document.getElementById('payment_id');
+            const clientSelect = document.getElementById('client_id');
+            const selectedPaymentId = @json($selectedPaymentId);
+
+            function updatePaymentOptions(clientId, preferredPaymentId = '') {
+                if (!paymentSelect) {
+                    return;
+                }
+
+                const options = clientId ? (availablePaymentsByClient[String(clientId)] || []) : [];
+                paymentSelect.innerHTML = '';
+
+                const blankOption = document.createElement('option');
+                blankOption.value = '';
+                blankOption.textContent = options.length > 0 ? 'No linked payment' : 'No available payments for selected client';
+                paymentSelect.appendChild(blankOption);
+
+                options.forEach((payment) => {
+                    const option = document.createElement('option');
+                    option.value = String(payment.id);
+                    option.textContent = payment.label;
+
+                    if (preferredPaymentId && String(payment.id) === String(preferredPaymentId)) {
+                        option.selected = true;
+                    }
+
+                    paymentSelect.appendChild(option);
+                });
+
+                if (!preferredPaymentId) {
+                    paymentSelect.value = '';
+                }
+            }
+
             // Initialize datepickers
             if (typeof $.fn.datepicker === 'function') {
                 $('.datepicker').datepicker({
@@ -318,8 +364,12 @@
             // Bind events
             $('#sales_type').on('change', handleSaleTypeChange);
             $('#base_amount, #tax_rate, #tds_rate').on('input change', calculateAmounts);
+            $('#client_id').on('change', function() {
+                updatePaymentOptions(this.value);
+            });
 
             // Initialize on page load
+            updatePaymentOptions(clientSelect ? clientSelect.value : '', selectedPaymentId);
             handleSaleTypeChange();
             calculateAmounts();
         });

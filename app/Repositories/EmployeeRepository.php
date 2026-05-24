@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Classes\CurrentCompany;
 use App\Classes\ResponseData;
 use App\Classes\SuccessData;
 use App\Classes\ErrorData;
@@ -31,7 +32,8 @@ class EmployeeRepository
      */
     public function getAllEmployees(array $filters = []): Collection
     {
-        $query = Employee::with(['currentSalary']);
+        $query = Employee::with(['currentSalary'])
+            ->forCompany(CurrentCompany::id());
 
         // Filter by status (active/inactive)
         if (isset($filters['status']) && !empty($filters['status'])) {
@@ -83,6 +85,7 @@ class EmployeeRepository
         try {
             // Create a new employee using DTO data
             $employee = Employee::create([
+                'company_profile_id' => CurrentCompany::id(),
                 'first_name' => $employeeDTO->firstName,
                 'last_name' => $employeeDTO->lastName,
                 'gender' => $employeeDTO->gender,
@@ -127,7 +130,9 @@ class EmployeeRepository
      */
     public function findEmployee(int $id): ?Employee
     {
-        return Employee::with(['salaries', 'currentSalary', 'latestSalary'])->find($id);
+        return Employee::with(['salaries', 'currentSalary', 'latestSalary'])
+            ->forCompany(CurrentCompany::id())
+            ->find($id);
     }
 
     /**
@@ -140,7 +145,7 @@ class EmployeeRepository
     public function updateEmployee(int $id, ManageEmployeeDTO $employeeDTO): ResponseData
     {
         try {
-            $employee = Employee::findOrFail($id);
+            $employee = Employee::forCompany(CurrentCompany::id())->findOrFail($id);
 
             // Update employee data excluding salary
             $employee->update([
@@ -172,7 +177,7 @@ class EmployeeRepository
     public function deleteEmployee(int $id): ResponseData
     {
         try {
-            $employee = Employee::find($id);
+            $employee = Employee::forCompany(CurrentCompany::id())->find($id);
 
             if (!$employee) {
                 return new ErrorData(['Employee not found']);
@@ -202,7 +207,7 @@ class EmployeeRepository
      */
     public function getEmployeeStatistics(array $filters = []): array
     {
-        $query = Employee::query();
+        $query = Employee::forCompany(CurrentCompany::id());
 
         // Apply filters
         if (isset($filters['status']) && !empty($filters['status'])) {
@@ -222,16 +227,16 @@ class EmployeeRepository
         }
 
         return [
-            'total_employees' => Employee::count(),
-            'active_employees' => Employee::active()->count(),
-            'inactive_employees' => Employee::inactive()->count(),
-            'total_monthly_salary' => Employee::active()->sum('salary'),
-            'department_breakdown' => Employee::active()
+            'total_employees' => (clone $query)->count(),
+            'active_employees' => Employee::forCompany(CurrentCompany::id())->active()->count(),
+            'inactive_employees' => Employee::forCompany(CurrentCompany::id())->inactive()->count(),
+            'total_monthly_salary' => Employee::forCompany(CurrentCompany::id())->active()->sum('salary'),
+            'department_breakdown' => Employee::forCompany(CurrentCompany::id())->active()
                 ->selectRaw('department, count(*) as count')
                 ->groupBy('department')
                 ->pluck('count', 'department')
                 ->toArray(),
-            'gender_breakdown' => Employee::active()
+            'gender_breakdown' => Employee::forCompany(CurrentCompany::id())->active()
                 ->selectRaw('gender, count(*) as count')
                 ->groupBy('gender')
                 ->pluck('count', 'gender')
@@ -246,7 +251,9 @@ class EmployeeRepository
      */
     public function getDistinctDepartments(): SupportCollection
     {
-        return Employee::distinct()->pluck('department');
+        return Employee::forCompany(CurrentCompany::id())
+            ->distinct()
+            ->pluck('department');
     }
 
 
@@ -259,7 +266,8 @@ class EmployeeRepository
      */
     public function searchEmployees(string $searchTerm): Collection
     {
-        return Employee::where(function($query) use ($searchTerm) {
+        return Employee::forCompany(CurrentCompany::id())
+            ->where(function($query) use ($searchTerm) {
                     $query->where('first_name', 'LIKE', "%{$searchTerm}%")
                           ->orWhere('last_name', 'LIKE', "%{$searchTerm}%")
                           ->orWhere('mobile_number', 'LIKE', "%{$searchTerm}%");
@@ -279,7 +287,7 @@ class EmployeeRepository
     public function updateEmployeeSalary(int $employeeId, int $salary, string $effectiveDate): ResponseData
     {
         try {
-            $employee = Employee::find($employeeId);
+            $employee = Employee::forCompany(CurrentCompany::id())->find($employeeId);
 
             if (!$employee) {
                 return new ErrorData(['Employee not found']);
@@ -313,6 +321,10 @@ class EmployeeRepository
      */
     public function getEmployeeSalaryHistory(int $employeeId): Collection
     {
+        if (!Employee::forCompany(CurrentCompany::id())->where('id', $employeeId)->exists()) {
+            return new Collection();
+        }
+
         return EmployeeSalaries::where('employee_id',$employeeId)
                               ->latest()
                               ->get();
@@ -329,7 +341,7 @@ class EmployeeRepository
     public function payAdvanceToEmployee(int $employeeId, float $advanceAmount, ?string $reason = null): ResponseData
     {
         try {
-            $employee = Employee::find($employeeId);
+            $employee = Employee::forCompany(CurrentCompany::id())->find($employeeId);
 
             if (!$employee) {
                 return new ErrorData(['Employee not found']);
