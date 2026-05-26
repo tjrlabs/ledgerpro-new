@@ -107,6 +107,38 @@
         background-color: rgba(100,200,100, 0.6)
     }
 
+    .app-table tbody tr.attendance-row-indirect-paid {
+        background-color: rgba(253, 224, 71, 0.22);
+    }
+
+    .app-table tbody tr.attendance-row-indirect-paid:hover {
+        background-color: rgba(253, 224, 71, 0.28);
+    }
+
+    .app-table tbody tr.attendance-row-paid {
+        background-color: rgba(74, 222, 128, 0.22);
+    }
+
+    .app-table tbody tr.attendance-row-paid:hover {
+        background-color: rgba(74, 222, 128, 0.28);
+    }
+
+    .app-table tbody tr.attendance-row-indirect-remarks {
+        background-color: rgba(253, 224, 71, 0.16);
+    }
+
+    .app-table tbody tr.attendance-row-indirect-remarks:hover {
+        background-color: rgba(253, 224, 71, 0.2);
+    }
+
+    .app-table tbody tr.attendance-row-paid-remarks {
+        background-color: rgba(74, 222, 128, 0.16);
+    }
+
+    .app-table tbody tr.attendance-row-paid-remarks:hover {
+        background-color: rgba(74, 222, 128, 0.22);
+    }
+
     .app-table tbody td {
         @apply px-5 py-4 text-sm text-violet-100/85;
     }
@@ -441,6 +473,26 @@ body input[type="datetime-local"],
 body input[type="month"],
 body input[type="week"] {
     color-scheme: dark;
+}
+
+body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]) {
+    background-color: rgba(8, 3, 15, 0.92) !important;
+    color: #f5f3ff !important;
+    border-color: rgb(139 92 246 / 0.24) !important;
+}
+
+body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"])::placeholder {
+    color: rgb(196 181 253 / 0.5) !important;
+}
+
+body input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]):focus {
+    border-color: rgb(167 139 250 / 0.7) !important;
+    --tw-ring-color: rgb(139 92 246 / 0.24);
+}
+
+body input.bg-transparent,
+body .app-field input {
+    background-color: transparent !important;
 }
 
 body input[type="date"]::-webkit-calendar-picker-indicator,

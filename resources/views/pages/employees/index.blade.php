@@ -3,8 +3,11 @@
         <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="page-shell">
                 <div class="page-inner">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold">Employee Management</h1>
+                    <div class="page-header">
+                        <div>
+                            <h1 class="page-title">Employee Management</h1>
+                            <p class="page-subtitle">Manage employee records, salary details, and advance balances in one place.</p>
+                        </div>
                         <a href="{{ route('employees.create') }}" class="btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -15,58 +18,58 @@
 
                     <!-- Statistics Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div class="stat-card">
                             <div class="flex items-center">
-                                <div class="p-2 bg-blue-100 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="stat-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-blue-600">Total Employees</p>
-                                    <p class="text-2xl font-bold text-blue-800">{{ $totalEmployees }}</p>
+                                    <p class="text-sm font-medium text-violet-200/80">Total Employees</p>
+                                    <p class="text-2xl font-bold text-white">{{ $totalEmployees }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <div class="stat-card">
                             <div class="flex items-center">
-                                <div class="p-2 bg-green-100 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="stat-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-green-600">Active Employees</p>
-                                    <p class="text-2xl font-bold text-green-800">{{ $activeEmployees }}</p>
+                                    <p class="text-sm font-medium text-violet-200/80">Active Employees</p>
+                                    <p class="text-2xl font-bold text-purple-100">{{ $activeEmployees }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <div class="stat-card">
                             <div class="flex items-center">
-                                <div class="p-2 bg-red-100 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="stat-icon !bg-rose-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-red-600">Inactive Employees</p>
-                                    <p class="text-2xl font-bold text-red-800">{{ $inactiveEmployees }}</p>
+                                    <p class="text-sm font-medium text-violet-200/80">Inactive Employees</p>
+                                    <p class="text-2xl font-bold text-rose-200">{{ $inactiveEmployees }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <div class="stat-card">
                             <div class="flex items-center">
-                                <div class="p-2 bg-yellow-100 rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div class="stat-icon !bg-fuchsia-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                                     </svg>
                                 </div>
                                 <div class="ml-4">
-                                    <p class="text-sm font-medium text-yellow-600">Monthly Payroll</p>
-                                    <p class="text-2xl font-bold text-yellow-800">₹{{ number_format($totalMonthlySalary) }}</p>
+                                    <p class="text-sm font-medium text-violet-200/80">Monthly Payroll</p>
+                                    <p class="text-2xl font-bold text-fuchsia-100">₹{{ number_format($totalMonthlySalary) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -77,16 +80,16 @@
                         <form action="{{ route('employees.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-6 gap-4">
                             <!-- Search -->
                             <div>
-                                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                                    <label for="search" class="mb-1 block text-sm font-medium text-violet-100">Search</label>
                                 <input type="text" name="search" id="search" placeholder="Name or Mobile"
                                        value="{{ $currentFilters['search'] ?? '' }}"
-                                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
+                                        class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 placeholder:text-violet-300/45 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20">
                             </div>
 
                             <!-- Status Filter -->
                             <div>
-                                <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select name="status" id="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
+                                <label for="status" class="mb-1 block text-sm font-medium text-violet-100">Status</label>
+                                <select name="status" id="status" class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20">
                                     @foreach($statuses as $status)
                                         <option value="{{ $status }}" {{ ($currentFilters['status'] ?? 'active') == $status ? 'selected' : '' }}>
                                             {{ ucfirst($status) }}
@@ -97,8 +100,8 @@
 
                             <!-- Department Filter -->
                             <div>
-                                <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                                <select name="department" id="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
+                                <label for="department" class="mb-1 block text-sm font-medium text-violet-100">Department</label>
+                                <select name="department" id="department" class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20">
                                     <option value="">All Departments</option>
                                     @foreach($departments as $department)
                                         <option value="{{ $department }}" {{ ($currentFilters['department'] ?? '') == $department ? 'selected' : '' }}>
@@ -110,8 +113,8 @@
 
                             <!-- Gender Filter -->
                             <div>
-                                <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                                <select name="gender" id="gender" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
+                                <label for="gender" class="mb-1 block text-sm font-medium text-violet-100">Gender</label>
+                                <select name="gender" id="gender" class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20">
                                     <option value="">All Genders</option>
                                     @foreach($genders as $gender)
                                         <option value="{{ $gender }}" {{ ($currentFilters['gender'] ?? '') == $gender ? 'selected' : '' }}>
@@ -123,18 +126,18 @@
 
                             <!-- Joining Date From -->
                             <div>
-                                <label for="joining_from" class="block text-sm font-medium text-gray-700 mb-1">Joined From</label>
+                                    <label for="joining_from" class="mb-1 block text-sm font-medium text-violet-100">Joined From</label>
                                 <input type="text" name="joining_from" id="joining_from" placeholder="YYYY-MM-DD"
                                        value="{{ $currentFilters['joining_from'] ?? '' }}"
-                                       class="datepicker w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50">
+                                        class="datepicker w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 placeholder:text-violet-300/45 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20">
                             </div>
 
                             <!-- Filter Buttons -->
                             <div class="flex items-end space-x-2">
-                                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                <button type="submit" class="btn-primary">
                                     Apply Filters
                                 </button>
-                                <a href="{{ route('employees.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <a href="{{ route('employees.index') }}" class="btn-secondary">
                                     Reset
                                 </a>
                             </div>
@@ -175,9 +178,13 @@
 
                     <!-- Employees Table -->
                     <div class="app-table-wrap">
+                        @php
+                            $displayedTotalSalary = $employees->sum('salary');
+                            $displayedTotalAdvanceDue = $employees->sum('advance_due');
+                        @endphp
                         <table class="app-table">
                             <thead>
-                                <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <tr>
                                     <th class="py-3 px-6 text-center">S.NO</th>
                                     <th class="py-3 px-6 text-left">Employee Name</th>
                                     <th class="py-3 px-6 text-center">Gender</th>
@@ -189,37 +196,37 @@
                                     <th class="py-3 px-6 text-center">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="text-gray-600 text-sm">
+                            <tbody>
                                 @forelse ($employees as $index => $employee)
-                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                    <tr>
                                         <td class="py-3 px-6 text-center">{{ $index + 1 }}</td>
                                         <td class="py-3 px-6 text-left">
                                             <div class="flex items-center">
                                                 <div class="mr-3">
-                                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                        <span class="text-blue-600 font-semibold text-sm">
+                                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/15 ring-1 ring-violet-400/25">
+                                                        <span class="text-sm font-semibold text-violet-100">
                                                             {{ strtoupper(substr($employee->first_name, 0, 1)) }}{{ strtoupper(substr($employee->last_name, 0, 1)) }}
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="font-medium text-gray-900">{{ $employee->first_name }} {{ $employee->last_name }}</div>
+                                                    <div class="font-medium text-white">{{ $employee->first_name }} {{ $employee->last_name }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="py-3 px-6 text-center">
-                                            <span class="px-2 py-1 text-xs rounded-full {{ $employee->gender == 'male' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800' }}">
+                                            <span class="badge {{ $employee->gender == 'male' ? 'badge-info' : 'badge-warning' }}">
                                                 {{ ucfirst($employee->gender) }}
                                             </span>
                                         </td>
                                         <td class="py-3 px-6 text-center">
-                                            <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{{ $employee->department }}</span>
+                                            <span class="badge badge-neutral">{{ $employee->department }}</span>
                                         </td>
                                         <td class="py-3 px-6 text-center">₹{{ number_format($employee->salary) }} <br/> ({{$employee->salary_hours}} hours)</td>
                                         <td class="py-3 px-6 text-center">₹{{ number_format($employee->advance_due) }}</td>
                                         <td class="py-3 px-6 text-center">{{ \Carbon\Carbon::parse($employee->joining_date)->format('d-m-Y') }}</td>
                                         <td class="py-3 px-6 text-center">
-                                            <span class="px-2 py-1 text-xs rounded-full {{ $employee->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            <span class="badge {{ $employee->status == 'active' ? 'badge-success' : 'badge-danger' }}">
                                                 {{ ucfirst($employee->status) }}
                                             </span>
                                         </td>
@@ -254,12 +261,28 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="10" class="py-6 text-center text-gray-400 text-base">
+                                        <td colspan="10" class="py-6 text-center text-base text-violet-300/60">
                                             No employees found
                                         </td>
                                     </tr>
                                 @endforelse
                             </tbody>
+                            @if($employees->isNotEmpty())
+                                <tfoot>
+                                    <tr class="bg-violet-950/60">
+                                        <td colspan="4" class="px-5 py-4 text-right text-sm font-semibold uppercase tracking-[0.12em] text-violet-200">
+                                            Totals
+                                        </td>
+                                        <td class="px-5 py-4 text-center text-sm font-bold text-fuchsia-100">
+                                            ₹{{ number_format($displayedTotalSalary) }}
+                                        </td>
+                                        <td class="px-5 py-4 text-center text-sm font-bold text-rose-200">
+                                            ₹{{ number_format($displayedTotalAdvanceDue, 2) }}
+                                        </td>
+                                        <td colspan="3" class="px-5 py-4"></td>
+                                    </tr>
+                                </tfoot>
+                            @endif
                         </table>
                     </div>
                 </div>
@@ -267,37 +290,37 @@
         </div>
     </div>
     <!-- Modal -->
-    <div id="pay-advance-modal" class="hidden fixed inset-0 bg-gray-500/75 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+    <div id="pay-advance-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+        <div class="w-full max-w-md rounded-2xl border border-violet-500/25 bg-[#08030f]/95 p-6 shadow-[0_28px_90px_-44px_rgba(88,28,135,0.8)]">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-semibold text-gray-900">Pay Advance Amount</h2>
-                <button type="button" id="close-modal" class="text-gray-400 hover:text-gray-600">
+                <h2 class="text-xl font-semibold text-white">Pay Advance Amount</h2>
+                <button type="button" id="close-modal" class="text-violet-300/70 hover:text-white">
                     <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             <!-- Employee Information -->
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div class="surface-muted mb-6 p-4">
                 <div class="flex items-center mb-3">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                        <span id="employee-initials" class="text-blue-600 font-semibold text-sm"></span>
+                    <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/15 ring-1 ring-violet-400/25">
+                        <span id="employee-initials" class="text-sm font-semibold text-violet-100"></span>
                     </div>
                     <div>
-                        <h3 id="employee-name" class="font-medium text-gray-900"></h3>
-                        <p class="text-sm text-gray-500">Employee</p>
+                        <h3 id="employee-name" class="font-medium text-white"></h3>
+                        <p class="text-sm text-violet-300/65">Employee</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                        <p class="text-gray-500">Current Salary</p>
-                        <p id="employee-salary" class="font-medium text-gray-900"></p>
+                        <p class="text-violet-300/65">Current Salary</p>
+                        <p id="employee-salary" class="font-medium text-white"></p>
                     </div>
                     <div>
-                        <p class="text-gray-500">Advance Due</p>
-                        <p id="employee-advance-due" class="font-medium text-red-600">₹0</p>
+                        <p class="text-violet-300/65">Advance Due</p>
+                        <p id="employee-advance-due" class="font-medium text-rose-200">₹0</p>
                     </div>
                 </div>
             </div>
@@ -311,7 +334,7 @@
                 <!-- Alert Messages Container -->
                 <div id="form-alerts" class="mb-4 hidden">
                     <!-- Success Alert -->
-                    <div id="success-message" class="hidden p-4 bg-green-50 border-l-4 border-green-500 text-green-700">
+                    <div id="success-message" class="alert-success hidden">
                         <div class="flex items-center">
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -321,7 +344,7 @@
                     </div>
 
                     <!-- Error Alert -->
-                    <div id="error-message" class="hidden p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                    <div id="error-message" class="alert-error hidden">
                         <div class="flex items-center">
                             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -332,7 +355,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="advance-amount" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="advance-amount" class="mb-2 block text-sm font-medium text-violet-100">
                         Advance Amount (₹)
                     </label>
                     <input type="number"
@@ -342,31 +365,31 @@
                            min="1"
                            max="50000"
                            placeholder="Enter amount"
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"
+                           class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 placeholder:text-violet-300/45 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20"
                            required>
-                    <p class="mt-1 text-xs text-gray-500">Enter the advance amount to be paid to the employee</p>
+                    <p class="mt-1 text-xs text-violet-300/60">Enter the advance amount to be paid to the employee</p>
                 </div>
 
                 <div class="mb-6">
-                    <label for="advance-reason" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="advance-reason" class="mb-2 block text-sm font-medium text-violet-100">
                         Reason (Optional)
                     </label>
                     <textarea id="advance-reason"
                               name="reason"
                               rows="3"
                               placeholder="Reason for advance payment..."
-                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200/50"></textarea>
+                              class="w-full rounded-lg border border-violet-500/25 bg-black/45 px-3 py-2.5 text-sm text-violet-50 placeholder:text-violet-300/45 shadow-sm shadow-black/30 focus:border-violet-400 focus:outline-hidden focus:ring-4 focus:ring-violet-500/20"></textarea>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="flex justify-end space-x-3">
                     <button type="button"
                             id="cancel-advance"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                            class="btn-secondary">
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-md hover:bg-yellow-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                            class="btn-accent">
                         Pay Advance
                     </button>
                 </div>

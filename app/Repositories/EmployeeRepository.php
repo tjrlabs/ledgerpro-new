@@ -69,8 +69,8 @@ class EmployeeRepository
             $query->whereDate('joining_date', '<=', $filters['joining_to']);
         }
 
-        return $query->orderBy('joining_date', 'desc')
-                    ->orderBy('first_name', 'asc')
+        return $query->orderBy('first_name', 'asc')
+                ->orderBy('last_name', 'asc')
                     ->get();
     }
 

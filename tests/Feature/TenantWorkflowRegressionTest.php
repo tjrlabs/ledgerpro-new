@@ -495,14 +495,17 @@ class TenantWorkflowRegressionTest extends TestCase
             ->post(route('attendance.pay', $row->id), [
                 'record_id' => $row->id,
                 'amount_paid' => 900,
+                'not_directly_paid' => true,
             ])
             ->assertOk()
-            ->assertJsonPath('success', true);
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.not_directly_paid', true);
 
         $this->assertDatabaseHas('employee_attendanceboard', [
             'id' => $row->id,
             'company_profile_id' => $company->id,
             'paid_amount' => 900,
+            'not_directly_paid' => 1,
         ]);
     }
 

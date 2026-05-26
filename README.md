@@ -98,6 +98,12 @@ Run Artisan commands:
 ./vendor/bin/sail artisan about
 ```
 
+Create a local gzipped database backup in `storage/db-backups`:
+
+```bash
+./vendor/bin/sail artisan db:backup-local
+```
+
 Build frontend assets:
 
 ```bash

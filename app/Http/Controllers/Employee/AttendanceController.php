@@ -284,8 +284,8 @@ class AttendanceController extends Controller
             foreach ($newEmployees as $employee) {
                 try {
                     // Calculate per day and per hour salary
-                    $perDaySalary = $attendance->total_days > 0 ? round($employee->salary / $attendance->total_days, 2) : 0;
-                    $perHourSalary = $employee->salary_hours > 0 ? round($perDaySalary / $employee->salary_hours, 2) : 0;
+                    $perDaySalary = $attendance->total_days > 0 ? round($employee->salary / $attendance->total_days, 6) : 0;
+                    $perHourSalary = $employee->salary_hours > 0 ? round($perDaySalary / $employee->salary_hours, 6) : 0;
 
                     // Create employee attendance record
                     $employeeAttendanceData = [
@@ -450,7 +450,8 @@ class AttendanceController extends Controller
             // Validate the request
             $request->validate([
                 'amount_paid' => 'required|numeric|min:0.01',
-                'record_id' => 'required|integer'
+                'record_id' => 'required|integer',
+                'not_directly_paid' => 'nullable|boolean',
             ]);
 
             // Get the employee attendance record
@@ -473,6 +474,7 @@ class AttendanceController extends Controller
 
             // Update the paid amount in attendance record
             $employeeAttendance->paid_amount = $amountPaid;
+            $employeeAttendance->not_directly_paid = $request->boolean('not_directly_paid');
 
             // Calculate balance carry forward
             $netSalary = $employeeAttendance->net_salary_after_deductions;
@@ -524,6 +526,7 @@ class AttendanceController extends Controller
                 'data' => [
                     'new_paid_amount' => $amountPaid,
                     'balance_carry_forward' => $newBalanceCf,
+                    'not_directly_paid' => $employeeAttendance->not_directly_paid,
                     'employee_advance_due' => $employee->advance_due,
                     'employee_outstanding_balance' => $employee->outstanding_balance
                 ]

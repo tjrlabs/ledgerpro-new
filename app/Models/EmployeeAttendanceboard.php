@@ -39,6 +39,7 @@ class EmployeeAttendanceboard extends Model
         'net_salary_after_deductions',
         'paid_amount',
         'balance_carry_forward',
+        'not_directly_paid',
 //        'advance_due',
         'remarks',
     ];
@@ -50,8 +51,8 @@ class EmployeeAttendanceboard extends Model
      */
     protected $casts = [
         'company_profile_id' => 'integer',
-        'per_day_salary' => 'decimal:2',
-        'per_hour_salary' => 'decimal:2',
+        'per_day_salary' => 'decimal:6',
+        'per_hour_salary' => 'decimal:6',
         'present_days' => 'integer',
         'overtime_hours' => 'decimal:2',
         'working_days_salary' => 'decimal:2',
@@ -63,6 +64,7 @@ class EmployeeAttendanceboard extends Model
         'net_salary_after_deductions' => 'decimal:2',
         'paid_amount' => 'decimal:2',
         'balance_carry_forward' => 'decimal:2',
+        'not_directly_paid' => 'boolean',
 //        'advance_due' => 'decimal:2',
     ];
 

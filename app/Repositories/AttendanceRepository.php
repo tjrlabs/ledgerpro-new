@@ -185,9 +185,12 @@ class AttendanceRepository
     public function getEmployeeAttendanceByPeriod(int $attendanceId): Collection
     {
         return EmployeeAttendanceboard::with('employee')
-            ->forCompany(CurrentCompany::id())
-            ->where('attendance_id', $attendanceId)
-            ->orderBy('employee_id')
+            ->join('employee', 'employee.id', '=', 'employee_attendanceboard.employee_id')
+            ->select('employee_attendanceboard.*')
+            ->where('employee_attendanceboard.company_profile_id', CurrentCompany::id())
+            ->where('employee_attendanceboard.attendance_id', $attendanceId)
+            ->orderBy('employee.first_name')
+            ->orderBy('employee.last_name')
             ->get();
     }
 
@@ -299,24 +302,37 @@ class AttendanceRepository
                 return new ErrorData(['Employee attendance record not found']);
             }
 
-            // Calculate salary based on present days and overtime
-            $perDayRate = $employeeAttendance->per_day_salary ?? 0;
-            $perHourRate = $employeeAttendance->per_hour_salary ?? 0;
+            // Derive duty pay from the monthly salary and attendance days directly.
+            // Re-multiplying a rounded per-day rate causes full-month salaries like 16900
+            // to become 16899.96 in 31-day periods.
+            $attendanceTotalDays = max((int) ($employeeAttendance->attendance?->total_days ?? 0), 1);
+            $monthlySalary = (float) ($employeeAttendance->employee->salary ?? 0);
+            $salaryHours = max((float) ($employeeAttendance->employee->salary_hours ?? 0), 1);
+            $presentDays = (int) $employeeData['present_days'];
+            $overtimeHours = (float) $employeeData['overtime_hours'];
+            $bonusAmount = (float) $employeeData['bonus_amount'];
+            $advanceDeducted = (float) $employeeData['advance_deducted'];
 
-            $workingDaysSalary = $employeeData['present_days'] * $perDayRate;
-            $overtimeAmount = $employeeData['overtime_hours'] * $perHourRate;
-            $bonusAmount = $employeeData['bonus_amount'];
-            $advanceDeducted = $employeeData['advance_deducted'];
+            $perDayRate = $attendanceTotalDays > 0 ? $monthlySalary / $attendanceTotalDays : 0;
+            $perHourRate = $salaryHours > 0 ? $perDayRate / $salaryHours : 0;
+
+            $workingDaysSalary = $presentDays >= $attendanceTotalDays
+                ? round($monthlySalary, 2)
+                : round($perDayRate * $presentDays, 2);
+            $overtimeAmount = round($overtimeHours * $perHourRate, 2);
             //$previousBalance = $employeeAttendance->previous_balance ?? 0;
             $previousBalance = $employeeAttendance->employee->outstanding_balance ?? 0;
 
-            $totalSalary = ceil($workingDaysSalary + $overtimeAmount + $bonusAmount);
-            $netSalaryAfterDeductions = ceil($totalSalary - $advanceDeducted - $previousBalance);
+            $totalSalary = round($workingDaysSalary + $overtimeAmount + $bonusAmount, 2);
+            $rawNetSalaryAfterDeductions = $totalSalary - $advanceDeducted - $previousBalance;
+            $netSalaryAfterDeductions = $this->roundNetPay($rawNetSalaryAfterDeductions);
 
             // Update the employee attendance record
             $employeeAttendance->update([
                 'present_days' => $employeeData['present_days'],
                 'overtime_hours' => $employeeData['overtime_hours'],
+                'per_day_salary' => round($perDayRate, 6),
+                'per_hour_salary' => round($perHourRate, 6),
                 'working_days_salary' => $workingDaysSalary,
                 'overtime_amount' => $overtimeAmount,
                 'bonus_amount' => $bonusAmount,
@@ -364,6 +380,16 @@ class AttendanceRepository
             // Log error but don't fail the main operation
             \Log::error('Failed to update attendance summary: ' . $e->getMessage());
         }
+    }
+
+    private function roundNetPay(float $amount): float
+    {
+        $lowerBound = floor($amount);
+        $decimalPart = $amount - $lowerBound;
+
+        return $decimalPart > 0.5
+            ? ceil($amount)
+            : $lowerBound;
     }
 
     /**

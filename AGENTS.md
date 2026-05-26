@@ -28,6 +28,7 @@ Prefer Sail for local app commands because the README defines Sail as the defaul
 - Stop containers: `./vendor/bin/sail down`
 - Run tests: `./vendor/bin/sail test`
 - Run Artisan: `./vendor/bin/sail artisan <command>`
+- Create a local DB backup: `./vendor/bin/sail artisan db:backup-local`
 - Run Vite inside Sail: `./vendor/bin/sail npm run dev -- --host 0.0.0.0`
 - Build assets: `./vendor/bin/sail npm run build`
 - Tail logs: `./vendor/bin/sail artisan pail --timeout=0`
@@ -89,6 +90,7 @@ Tenant-sensitive models include at least clients, items, transactions, account b
 ## Data And Bootstrap Notes
 
 - The project currently bootstraps default auth/company data through migrations rather than `DatabaseSeeder`.
+- Local database backups created by `db:backup-local` are written to `storage/db-backups` and are gitignored.
 - The default local admin noted in the README is `thejairaghav@gmail.com` with password `pass@111`.
 - The default company profile is intended to be `Ampspark Technologies Private Limited` for the seeded admin user.
 
